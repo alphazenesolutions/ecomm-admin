@@ -1,0 +1,5 @@
+.New_Featured {
+  display: grid;
+  grid-template-columns: 0.8fr 3fr;
+  grid-gap: 2rem;
+}

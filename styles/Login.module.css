@@ -1,0 +1,92 @@
+@import url("https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@300&display=swap");
+.Login_page {
+  width: 70%;
+  margin: auto;
+  padding: 2rem;
+}
+.LoginPage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+}
+.login_img img {
+  height: 600px;
+  width: 100%;
+  object-fit: contain;
+}
+.login_img {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-end !important;
+  background-color: #171616;
+  height: 100vh;
+}
+
+.login_img h1 {
+  font-family: "Inknut Antiqua", serif;
+  color: white;
+}
+.login_details {
+  width: 400px;
+  margin: auto;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  height: 450px;
+  justify-content: space-between;
+}
+.Register_details {
+  height: 550px;
+}
+.text-red-500 {
+  padding-left: 5px;
+}
+.login_details img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin-left: -20px;
+}
+.login_details h1 {
+  margin-top: -50px;
+  color: #171616;
+  font-family: "Inknut Antiqua", serif;
+}
+.login_details button {
+  background-color: #171616;
+  transition: all 0.6s;
+  width: 100%;
+}
+/* login */
+.login_details button:hover {
+  background-color: #242121;
+  transform: scale(1.02);
+}
+.login_details form {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+}
+/* Register_img */
+.Register_img img {
+  -webkit-transform: scaleX(-1);
+  -moz-transform: scaleX(-1);
+  -o-transform: scaleX(-1);
+  transform: scaleX(-1);
+
+  filter: FlipH;
+  -ms-filter: "FlipH";
+}
+@keyframes zoom-in-zoom-out {
+  0% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.05, 1.05);
+  }
+  100% {
+    transform: scale(1, 1);
+  }
+}
