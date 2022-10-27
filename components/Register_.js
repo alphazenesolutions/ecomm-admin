@@ -87,6 +87,11 @@ const Register = () => {
   };
   return (
     <div className={classes.LoginPage}>
+      <div className={`${classes.login_img} ${classes.Register_img}`}>
+        <h1 className="text-5xl">Welcome You...</h1>
+
+        <img src="/login_.png" alt="Vercel Logo" />
+      </div>
       <div>
         <div
           className={`mx-4 ${classes.login_details} ${classes.Register_details}`}
@@ -181,8 +186,8 @@ const Register = () => {
               ) : null}
             </div>
 
-            <button className="rounded bg-yellow-600 loginBtn	text-white-1000 w-full py-2 px-4 mt-4">
-              Save
+            <button className="font-bold rounded bg-yellow-600 loginBtn	text-white-1000 w-full py-2 px-4 mt-4">
+              Sign up
             </button>
           </form>
 
@@ -192,11 +197,7 @@ const Register = () => {
         </div>
         <div className="shadow-lg"></div>
       </div>
-      <div className={`${classes.login_img} ${classes.Register_img}`}>
-        <h1 className="text-5xl">Welcome You...</h1>
 
-        <img src="/login_.png" alt="Vercel Logo" />
-      </div>
       <ToastContainer />
     </div>
   );

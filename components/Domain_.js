@@ -741,9 +741,9 @@ const Signup_ = () => {
           </Box>
         </div>
 
-        {/* <div className="StoreSetUpImg">
+        <div className="StoreSetUpImg">
           <img src="./login_.png" />
-        </div> */}
+        </div>
       </div>
       <ToastContainer />
     </>
