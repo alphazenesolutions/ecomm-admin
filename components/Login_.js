@@ -152,7 +152,7 @@ const Login = () => {
             <label>Keep me signed in</label>
           </div> */}
           <p className=" mt-4">
-            <a href="/register">Create new account</a>
+            <a href="/Store_setup">Create new account</a>
           </p>
         </div>
       </div>

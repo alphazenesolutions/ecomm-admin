@@ -223,9 +223,26 @@ a {
   width: 100%;
   object-fit: contain;
 }
+
 /* domain */
 .StoreSetUpImg {
   background-color: #171616;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center !important;
+}
+.StoreSetUpImg img {
+  height: 600px;
+  width: 100%;
+  object-fit: contain;
+}
+
+.StoreSetUpImg h1 {
+  font-family: "Inknut Antiqua", serif;
+  color: white;
+  margin-top: 40px !important;
 }
 .css-1u4zpwo-MuiSvgIcon-root-MuiStepIcon-root.Mui-completed {
   color: #0b6219 !important;
@@ -237,8 +254,14 @@ a {
   height: 100vh;
   align-items: center;
 }
+.css-1u4zpwo-MuiSvgIcon-root-MuiStepIcon-root.Mui-active {
+  color: black !important;
+}
+.css-1u4zpwo-MuiSvgIcon-root-MuiStepIcon-root {
+  height: 1.7rem !important;
+}
 .Stepper_container_1 {
-  height: 610px;
+  height: 550px;
   margin-top: 20px;
   width: 100%;
   position: relative;
@@ -266,18 +289,27 @@ a {
 }
 .Domain_setup h1 {
   font-family: "Inter", sans-serif;
-  font-size: 30px;
+  font-size: 24px;
   font-weight: bold !important;
+}
+.wemix {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  margin-left: -20px;
+  margin-top: -50px;
+  margin-bottom: -50px;
 }
 .searchDomain:hover {
   cursor: pointer;
 }
 .Domain_setup {
   display: flex;
-  align-items: center !important;
+  align-items: flex-start !important;
   flex-direction: column !important;
   width: 100% !important;
   padding: 1.5rem;
+  margin-top: 30px;
 }
 .domainlistavailable {
   height: 200px;
@@ -312,6 +344,17 @@ a {
 }
 .Domain_setup_inputs {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.Domain_setup_inputs button {
+  background-color: black;
+  width: 100%;
+  margin-top: 20px;
+  color: white;
+  border-radius: 10px;
+  padding: 10px 0;
 }
 .select_domain:checked:before {
   background-color: green !important;
@@ -321,8 +364,8 @@ a {
   padding: 10px;
   /* border: 1px solid #272360; */
   border-radius: 8px;
-  width: 640px !important;
-  text-align: center;
+  width: 330px;
+  border-bottom: 1px solid lightgray;
 }
 .Plan_container {
   display: grid;

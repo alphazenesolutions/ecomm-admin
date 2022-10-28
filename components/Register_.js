@@ -89,7 +89,6 @@ const Register = () => {
     <div className={classes.LoginPage}>
       <div className={`${classes.login_img} ${classes.Register_img}`}>
         <h1 className="text-5xl">Welcome You...</h1>
-
         <img src="/login_.png" alt="Vercel Logo" />
       </div>
       <div>
