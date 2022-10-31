@@ -16,7 +16,6 @@
     "@mui/material": "^5.10.6",
     "@mui/styled-engine-sc": "^5.10.6",
     "@reduxjs/toolkit": "^1.8.6",
-    "@rsuite/charts": "^5.1.0",
     "array-move": "^4.0.0",
     "autoprefixer": "^10.4.12",
     "axios": "^0.27.2",

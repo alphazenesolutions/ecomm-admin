@@ -49,6 +49,8 @@ const reorderColumnList = (sourceCol, startIndex, endIndex) => {
   return newColumn;
 };
 const MyStore_ = () => {
+  const [isloading, setisloading] = useState(false);
+  const [layoutloading, setlayoutloading] = useState(false);
   const [state, setState] = useState(initialData);
   const [userid, setuserid] = useState(null);
   const [userelementslist, setuserelementslist] = useState([]);
@@ -303,6 +305,7 @@ const MyStore_ = () => {
     document.getElementById("file_upload").click();
   };
   const savebtnnew = async () => {
+    setisloading(true);
     var images = document.getElementById("file_upload").files;
     var store_id = sessionStorage.getItem("store_id");
     if (images.length !== 0) {
@@ -312,8 +315,8 @@ const MyStore_ = () => {
       });
       for (var i = 0; i < images.length; i++) {
         let file = images[i];
-        if (file.size / 1024 / 1024 > 4) {
-          toast.info("Image size is too large!.. Image must be within 2 MB", {
+        if (file.size / 1024 / 1024 > 3) {
+          toast.info("Image size is too large!.. Image must be within 3 MB", {
             autoClose: 5000,
             transition: Slide,
           });
@@ -329,28 +332,43 @@ const MyStore_ = () => {
           });
           var imgurl1 = await file13;
           console.log(imgurl1);
-          let img = document.createElement("img");
-          img.id = "imgId";
+          var img = new Image();
           img.src = imgurl1;
-          document.body.appendChild(img);
-          let img_ = document.getElementById("imgId");
-          // img_.classList.add("hidden");
-          //or however you get a handle to the IMG
-          let width = img_.width;
-          let height = img_.height;
-          console.log(width, height);
-
-          // var data = {
-          //   image: imgurl1,
-          //   store: store_id,
-          // };
-          // var createimg = await CreateCoverimg(data);
-          // if (createimg.message === "SUCCESS") {
-          //   getalldata();
-          // }
+          console.log(img);
+          img.onload = async function () {
+            let width = this.width;
+            let height = this.height;
+            console.log(width, height);
+            if (
+              width <= 7000 &&
+              width >= 6000 &&
+              height <= 2300 &&
+              height >= 1900
+            ) {
+              var data = {
+                image: imgurl1,
+                store: store_id,
+              };
+              var createimg = await CreateCoverimg(data);
+              if (createimg.message === "SUCCESS") {
+                getalldata();
+              }
+            } else {
+              toast.info("Image height : 2300px ", {
+                autoClose: 2000,
+                transition: Slide,
+              });
+              toast.info("Image width : 7000px ", {
+                autoClose: 2000,
+                transition: Slide,
+              });
+            }
+          };
         }
       }
+      setisloading(false);
     } else {
+      setisloading(false);
       toast.error("Please Select Image...", {
         autoClose: 5000,
         transition: Slide,
@@ -358,13 +376,6 @@ const MyStore_ = () => {
     }
   };
 
-  // sample handler
-  const sampleHandler = () => {
-    let img = document.getElementById("sample");
-    let width = img.clientWidth;
-    let height = img.clientHeight;
-    console.log(width, height);
-  };
   return (
     <div>
       <div className="flex ">
@@ -448,7 +459,8 @@ const MyStore_ = () => {
                       homepage
                     </p>
                     <p className=" Image_dimension">
-                      * (height:500px) (width:1300px)
+                      Image dimesion should not exceed (height:2300px)
+                      (width:7000px)
                     </p>
 
                     <div className="home_cover_container">
@@ -531,13 +543,23 @@ const MyStore_ = () => {
                         </button>
                       </>
                     )}
-                    <button
-                      className="float-right  mt-4 bg-black-1000 w-32 text-white-1000 py-2 rounded"
-                      onClick={savebtnnew}
-                    >
-                      Save
-                    </button>
-                    <button onClick={sampleHandler}>Get dimension</button>
+                    {!isloading && (
+                      <button
+                        className="float-right  mt-4 bg-black-1000 w-32 text-white-1000 py-2 rounded"
+                        onClick={savebtnnew}
+                      >
+                        Save
+                      </button>
+                    )}
+                    {isloading && (
+                      <button
+                        style={{ opacity: "0.7" }}
+                        className="float-right  mt-4 bg-black-1000 w-32 text-white-1000 py-2 rounded"
+                        disabled
+                      >
+                        Loading…
+                      </button>
+                    )}
                   </div>
                 )}
                 {!isHomeSection && !homecover && isNavBarSection && !isAbout && (
@@ -581,12 +603,23 @@ const MyStore_ = () => {
                         </div>
                       </div>
                     </div>
-                    <button
-                      className="float-right mt-2 bg-black-1000 w-32 text-white-1000 py-2 rounded"
-                      onClick={themeHandler}
-                    >
-                      Save
-                    </button>
+                    {!layoutloading && (
+                      <button
+                        className="float-right mt-2 bg-black-1000 w-32 text-white-1000 py-2 rounded"
+                        onClick={themeHandler}
+                      >
+                        Save
+                      </button>
+                    )}
+                    {layoutloading && (
+                      <button
+                        style={{ opacity: "0.7" }}
+                        className="float-right mt-2 bg-black-1000 w-32 text-white-1000 py-2 rounded"
+                        disabled
+                      >
+                        Loading…
+                      </button>
+                    )}
                   </div>
                 )}
                 {!isHomeSection && !homecover && !isNavBarSection && isAbout && (

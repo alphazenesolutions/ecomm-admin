@@ -206,8 +206,8 @@ const Products_ = () => {
       transition: Slide,
     });
     let file = e.target.files;
-    if (file[0].size / 1024 / 1024 > 2) {
-      toast.info("Image size is too large!.. Image must be within 2 MB", {
+    if (file[0].size / 1024 / 1024 > 3) {
+      toast.info("Image size is too large!.. Image must be within 3 MB", {
         autoClose: 5000,
         transition: Slide,
       });
@@ -224,7 +224,32 @@ const Products_ = () => {
         });
       });
       var imgurl1 = await file13;
-      setproductimg(imgurl1);
+      var img = new Image();
+      img.src = imgurl1;
+      console.log(img);
+
+      img.onload = async function () {
+        let width = this.width;
+        let height = this.height;
+        if (
+          width <= 4500 &&
+          width >= 4000 &&
+          height <= 6500 &&
+          height >= 6000
+        ) {
+          setproductimg(imgurl1);
+        } else {
+          toast.info("Image height : 6500px", {
+            autoClose: 2000,
+            transition: Slide,
+          });
+          toast.info("Image width : 4500px", {
+            autoClose: 2000,
+            transition: Slide,
+          });
+        }
+        console.log(width, height);
+      };
     }
   };
   // add_new_varient
@@ -263,8 +288,8 @@ const Products_ = () => {
         transition: Slide,
       });
       for (var i = 0; i < galleryimg.length; i++) {
-        if (galleryimg[i].size / 1024 / 1024 > 2) {
-          toast.info("Image size is too large!.. Image must be within 2 MB", {
+        if (galleryimg[i].size / 1024 / 1024 > 10) {
+          toast.info("Image size is too large!.. Image must be within 3 MB", {
             autoClose: 5000,
             transition: Slide,
           });
@@ -281,7 +306,29 @@ const Products_ = () => {
             });
           });
           var imgurl1 = await file13;
-          galleryimgarray.push(imgurl1);
+          var img = new Image();
+          img.src = imgurl1;
+          img.onload = async function () {
+            let width = this.width;
+            let height = this.height;
+            if (
+              width <= 4500 &&
+              width >= 4000 &&
+              height <= 6500 &&
+              height >= 6000
+            ) {
+              galleryimgarray.push(imgurl1);
+            } else {
+              toast.info("Image height : 6500px", {
+                autoClose: 2000,
+                transition: Slide,
+              });
+              toast.info("Image width : 4500px", {
+                autoClose: 2000,
+                transition: Slide,
+              });
+            }
+          };
         }
       }
     }

@@ -11,9 +11,13 @@ import FormControl from "@mui/material/FormControl";
 import { useSelector } from "react-redux";
 import { SingleStore } from "../Api/Store";
 import React, { useEffect, useState } from "react";
+import LoadingButton from "@mui/lab/LoadingButton";
 
 const Login = () => {
   const [errorlist, seterrorlist] = useState(null);
+  const [isloading, setisloading] = useState(false);
+  const [loading, setLoading] = React.useState(true);
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -34,6 +38,7 @@ const Login = () => {
       }
       seterrorlist(errors);
       if (Object.keys(errors).length === 0) {
+        setisloading(true);
         var loginuser = await LoginUser(values);
         if (loginuser.message === "SUCCESS") {
           var Single_Store = await SingleStore({
@@ -50,9 +55,13 @@ const Login = () => {
             transition: Slide,
           });
           setTimeout(() => {
+            setisloading(false);
+
             window.location.replace("/dashboard");
           }, 2000);
         } else {
+          setisloading(false);
+
           toast.error(loginuser.message, {
             autoClose: 2000,
             transition: Slide,
@@ -141,9 +150,21 @@ const Login = () => {
                 </div>
               ) : null}
             </div>
-            <button className="rounded 	text-white-1000  py-3 px-4 mt-4 loginBtn">
-              Login
-            </button>
+            {!isloading && (
+              <button className="rounded 	text-white-1000  py-3 px-4 mt-4 loginBtn">
+                Login
+              </button>
+            )}
+
+            {isloading && (
+              <button
+                className={`${classes.login_loading} rounded 	text-white-1000  py-3 px-4 mt-4 loginBtn`}
+                loading={loading}
+                disabled
+              >
+                Loading…
+              </button>
+            )}
           </form>
 
           {/* <p className="text-yellow-500 mt-4">Forgot your password?</p> */}
