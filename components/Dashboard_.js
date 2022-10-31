@@ -21,7 +21,7 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import { Myorder_store } from "../Api/User";
 import { Singleproduct } from "../Api/Product";
-import Chart from "react-apexcharts";
+// import Chart from "react-apexcharts";
 
 import {
   Chart as ChartJS,
@@ -380,7 +380,7 @@ const Dashboard_ = () => {
             <div className=" h-fullshadow-lg p-2 border">
               <h1>Best Selling Products</h1>
               <>{/* <ReactEcharts option={getOption()} /> */}</>
-              <Chart
+              {/* <Chart
                 options={{
                   labels: ["A", "B", "C"],
                 }}
@@ -388,7 +388,7 @@ const Dashboard_ = () => {
                 type="pie"
                 width={500}
                 height={320}
-              />
+              /> */}
             </div>
           </div>
           <div className="mt-2 mb-2">

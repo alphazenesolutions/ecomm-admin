@@ -312,7 +312,7 @@ const MyStore_ = () => {
       });
       for (var i = 0; i < images.length; i++) {
         let file = images[i];
-        if (file.size / 1024 / 1024 > 2) {
+        if (file.size / 1024 / 1024 > 4) {
           toast.info("Image size is too large!.. Image must be within 2 MB", {
             autoClose: 5000,
             transition: Slide,
@@ -328,14 +328,26 @@ const MyStore_ = () => {
             });
           });
           var imgurl1 = await file13;
-          var data = {
-            image: imgurl1,
-            store: store_id,
-          };
-          var createimg = await CreateCoverimg(data);
-          if (createimg.message === "SUCCESS") {
-            getalldata();
-          }
+          console.log(imgurl1);
+          let img = document.createElement("img");
+          img.id = "imgId";
+          img.src = imgurl1;
+          document.body.appendChild(img);
+          let img_ = document.getElementById("imgId");
+          // img_.classList.add("hidden");
+          //or however you get a handle to the IMG
+          let width = img_.width;
+          let height = img_.height;
+          console.log(width, height);
+
+          // var data = {
+          //   image: imgurl1,
+          //   store: store_id,
+          // };
+          // var createimg = await CreateCoverimg(data);
+          // if (createimg.message === "SUCCESS") {
+          //   getalldata();
+          // }
         }
       }
     } else {
@@ -344,6 +356,14 @@ const MyStore_ = () => {
         transition: Slide,
       });
     }
+  };
+
+  // sample handler
+  const sampleHandler = () => {
+    let img = document.getElementById("sample");
+    let width = img.clientWidth;
+    let height = img.clientHeight;
+    console.log(width, height);
   };
   return (
     <div>
@@ -427,6 +447,9 @@ const MyStore_ = () => {
                       Upload the cover image what you want to display in
                       homepage
                     </p>
+                    <p className=" Image_dimension">
+                      * (height:500px) (width:1300px)
+                    </p>
 
                     <div className="home_cover_container">
                       <Swiper
@@ -455,7 +478,7 @@ const MyStore_ = () => {
                                   />
                                 </Avatar>
 
-                                <img src={data.image} />
+                                <img src={data.image} id="sample" />
                               </div>
                             </SwiperSlide>
                           ))
@@ -463,11 +486,6 @@ const MyStore_ = () => {
                           <SwiperSlide>
                             {" "}
                             <div className="CoverImg_upload">
-                              {/* {!isUpload && (
-                                <button className="border py-2 px-4">
-                                  Upload
-                                </button>
-                              )} */}
                               {!isUpload && (
                                 <input
                                   type="file"
@@ -507,18 +525,19 @@ const MyStore_ = () => {
                         />
                         <button
                           onClick={upload_handler}
-                          className="float-left mt-8 bg-black-1000 w-32 text-white-1000 py-2 rounded"
+                          className="float-left mt-4 bg-black-1000 w-32 text-white-1000 py-2 rounded"
                         >
                           Add New
                         </button>
                       </>
                     )}
                     <button
-                      className="float-right mt-8 bg-black-1000 w-32 text-white-1000 py-2 rounded"
+                      className="float-right  mt-4 bg-black-1000 w-32 text-white-1000 py-2 rounded"
                       onClick={savebtnnew}
                     >
                       Save
                     </button>
+                    <button onClick={sampleHandler}>Get dimension</button>
                   </div>
                 )}
                 {!isHomeSection && !homecover && isNavBarSection && !isAbout && (

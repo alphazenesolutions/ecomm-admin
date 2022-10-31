@@ -21,7 +21,15 @@ a {
   /* color: #d0cdcdf1; */
   margin: 0;
 }
-
+/* common */
+.Image_dimension {
+  color: #ff5555;
+  margin-top: 5px;
+  font-size: 12px;
+}
+.hidden {
+  display: none;
+}
 /* store setting */
 
 .Store_setting {
@@ -182,7 +190,7 @@ a {
   background-color: #d9d9d9;
   height: 350px;
   width: 100%;
-  margin-top: 60px;
+  margin-top: 40px;
   border-radius: 10px;
   position: relative;
 }
@@ -199,8 +207,8 @@ a {
 }
 .HomeCoverDelete {
   position: absolute;
-  top: 90px;
-  right: 10px;
+  top: 30px;
+  right: 30px;
   color: white !important;
   background-color: black;
   width: 30px;
@@ -219,9 +227,14 @@ a {
   margin: auto;
 }
 .home_cover_container img {
-  height: 500px;
+  /* height: 500px;
+  width: 100%; */
+  margin-top: 40px;
+  border-radius: 10px;
   width: 100%;
-  object-fit: contain;
+  height: 350px;
+
+  object-fit: cover;
 }
 
 /* domain */
