@@ -88,34 +88,38 @@ const Sidebar_ = () => {
           sx={{ flexGrow: 1, maxWidth: 400, overflowY: "auto" }}
         >
           <TreeItem
-            className="my-6"
+            className="sidebarMenu"
             onClick={Nav_dashboard}
             nodeId="1"
             label="Dashboard"
           ></TreeItem>
           <TreeItem
-            className="my-6"
+            className="sidebarMenu"
             onClick={Nav_Category}
             nodeId="100"
             label="Category"
           ></TreeItem>
           <TreeItem
-            className="my-6"
+            className="sidebarMenu"
             onClick={nav_menu}
             nodeId="101"
             label="Menu"
           ></TreeItem>
           <TreeItem
-            className="my-6"
+            className="sidebarMenu"
             onClick={Nav_products}
             nodeId="101"
             label="Products"
           ></TreeItem>
-          <TreeItem className="my-6" nodeId="2" label="Analytics & Predicition">
-            <TreeItem className="my-6" nodeId="3" label="Analytics" />
+          <TreeItem
+            className="sidebarMenu"
+            nodeId="2"
+            label="Analytics & Predicition"
+          >
+            <TreeItem className="sidebarMenu" nodeId="3" label="Analytics" />
             <TreeItem nodeId="4" label="Predicition"></TreeItem>
           </TreeItem>
-          <TreeItem className="my-6" nodeId="5" label="Order Management">
+          <TreeItem className="sidebarMenu" nodeId="5" label="Order Management">
             <TreeItem
               className="mt-6"
               nodeId="6"
@@ -123,37 +127,57 @@ const Sidebar_ = () => {
               label="Orders"
             />
           </TreeItem>
-          <TreeItem className="my-6" nodeId="7" label="Customer Management">
+          <TreeItem
+            className="sidebarMenu"
+            nodeId="7"
+            label="Customer Management"
+          >
             <TreeItem className="mt-6" nodeId="8" label="Customer" />
           </TreeItem>
-          <TreeItem className="my-6" nodeId="9" label="Store Settings">
-            <TreeItem className="my-6" nodeId="10" label="Domain Settings" />
+          <TreeItem className="sidebarMenu" nodeId="9" label="Store Settings">
             <TreeItem
-              className="my-6"
+              className="sidebarMenu"
+              nodeId="10"
+              label="Domain Settings"
+            />
+            <TreeItem
+              className="sidebarMenu"
               nodeId="11"
               onClick={nav_store}
               label="Theme Settings"
             />
-            <TreeItem className="my-6" nodeId="12" label="Store Information" />
             <TreeItem
-              className="my-6"
+              className="sidebarMenu"
+              nodeId="12"
+              label="Store Information"
+            />
+            <TreeItem
+              className="sidebarMenu"
               nodeId="13"
               label="Contact Information"
             />
             <TreeItem nodeId="14" label="Payment Information" />
           </TreeItem>
-          <TreeItem className="my-6" nodeId="105" label="Extensions"></TreeItem>
           <TreeItem
-            className="my-6"
+            className="sidebarMenu"
+            nodeId="105"
+            label="Extensions"
+          ></TreeItem>
+          <TreeItem
+            className="sidebarMenu"
             nodeId="107"
             onClick={Nav_journal}
             label="Journals"
           ></TreeItem>
-          <TreeItem className="my-6" nodeId="15" label="E-mail Notifications">
+          <TreeItem
+            className="sidebarMenu"
+            nodeId="15"
+            label="E-mail Notifications"
+          >
             <TreeItem className="mt-6" nodeId="16" label="Email " />
           </TreeItem>
           <TreeItem
-            className="my-6"
+            className="sidebarMenu"
             nodeId="107"
             onClick={logoutbtn}
             label="Logout"

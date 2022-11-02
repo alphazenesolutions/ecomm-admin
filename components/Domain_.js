@@ -28,6 +28,7 @@ import { allTheme } from "../Api/Theme";
 //
 import { useFormik } from "formik";
 import { CreateStore, UpdateStore } from "../Api/Store";
+import pincodeDirectory from "india-pincode-lookup";
 //
 const steps = [
   "Already Have Domain ?",
@@ -38,6 +39,8 @@ const steps = [
 const Signup_ = () => {
   // signup
   const [errorlist, seterrorlist] = useState(null);
+  const [isloading_s, setisloading_s] = useState(false);
+  const [isloading_Store, setisloading_Store] = useState(false);
   const formik_1 = useFormik({
     initialValues: {
       name: "",
@@ -49,23 +52,35 @@ const Signup_ = () => {
     onSubmit: async (values) => {
       const errors = {};
       if (!values.name) {
+        setisloading_s(false);
+
         errors.name = "First Name Is Required";
       }
       if (!values.lastname) {
+        setisloading_s(false);
+
         errors.lastname = "Last Name Is Required";
       }
       var numbers = /[a-z]/g;
       if (!values.phone) {
+        setisloading_s(false);
+
         errors.phone = "Mobile Number Required";
       } else if (values.phone.toString().length > 10) {
+        setisloading_s(false);
+
         errors.phone = "Must be 10 characters";
       }
 
       if (!values.email) {
+        setisloading_s(false);
+
         errors.email = "Email Required";
       } else if (
         !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)
       ) {
+        setisloading_s(false);
+
         errors.email = "Invalid email address";
       }
       var lowerCaseLetters = /[a-z]/g;
@@ -73,20 +88,31 @@ const Signup_ = () => {
       var numbers = /[0-9]/g;
       var specialchar = /[!@#$%^&amp;*()_+]/g;
       if (!values.password) {
+        setisloading_s(false);
+
         errors.password = "Password required";
       } else if (!values.password.match(lowerCaseLetters)) {
+        setisloading_s(false);
+
         errors.password = "Password must have lower case letters";
       } else if (!values.password.match(upperCaseLetters)) {
+        setisloading_s(false);
+
         errors.password = "Password must have upper case letters";
       } else if (!values.password.match(numbers)) {
+        setisloading_s(false);
+
         errors.password = "Password must have number";
       } else if (!values.password.match(specialchar)) {
+        setisloading_s(false);
+
         errors.password = "Password must have special characters";
       } else if (values.password.length < 8) {
         errors.password = "Must be 8 characters";
       }
       seterrorlist(errors);
       if (Object.keys(errors).length === 0) {
+        setisloading_s(true);
         values["type"] = "admin";
         var createuser = await CreateUser(values);
         if (createuser.message === "SUCCESS") {
@@ -104,13 +130,17 @@ const Signup_ = () => {
 
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             setSkipped(newSkipped);
+            setisloading_s(false);
           }, 2000);
         } else {
+          setisloading_s(false);
           toast.error(createuser.message, {
             autoClose: 2000,
             transition: Slide,
           });
         }
+      } else {
+        setisloading_s(false);
       }
     },
   });
@@ -124,7 +154,7 @@ const Signup_ = () => {
       window.location.replace("/dashboard");
     }
   };
-  const [activeStep, setActiveStep] = React.useState(0);
+  const [activeStep, setActiveStep] = React.useState(1);
   const [skipped, setSkipped] = React.useState(new Set());
 
   const isStepOptional = (step) => {
@@ -144,38 +174,6 @@ const Signup_ = () => {
 
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
     setSkipped(newSkipped);
-  };
-  const selectTheme_handler = async () => {
-    const updatedStore_ = await UpdateStore({
-      id: currentStore_id,
-      theme: selectedtheme,
-    });
-    if (updatedStore_.message == "Updated Successfully") {
-      let newSkipped = skipped;
-      if (isStepSkipped(activeStep)) {
-        newSkipped = new Set(newSkipped.values());
-        newSkipped.delete(activeStep);
-      }
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      setSkipped(newSkipped);
-    }
-  };
-  const haveDomain_handler = async () => {
-    var domainName = document.getElementById("haveDomain").value;
-    const updatedStore_ = await UpdateStore({
-      id: currentStore_id,
-      domain: domainName,
-    });
-    if (updatedStore_.message == "Updated Successfully") {
-      let newSkipped = skipped;
-      if (isStepSkipped(activeStep)) {
-        newSkipped = new Set(newSkipped.values());
-        newSkipped.delete(activeStep);
-      }
-
-      setActiveStep((prevActiveStep) => prevActiveStep + 2);
-      setSkipped(newSkipped);
-    }
   };
 
   const handleBack = () => {
@@ -202,6 +200,7 @@ const Signup_ = () => {
   useEffect(() => {
     getalldata();
     getThemedata();
+    setstatelist(Citylist.states);
   }, []);
   const getalldata = async () => {
     var user_id = sessionStorage.getItem("user_id");
@@ -227,95 +226,13 @@ const Signup_ = () => {
       setcurrentStore_id(Single_Store.data[0].id);
     }
   };
-  const searchbtn = async () => {
-    var domain = document.getElementById("domain").value;
-    var check = domain.includes(".");
-    if (domain.length !== 0) {
-      if (check === true) {
-        setloading(true);
-        setdomainname(domain);
-        const options = {
-          method: "GET",
-          url: `https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_d5hP7WuoVTCBB4a6cQbBv0jhL35MF&domainName=${domain}&credits=DA`,
-        };
-        axios
-          .request(options)
-          .then(function (response) {
-            if (response.data.DomainInfo.domainAvailability === "UNAVAILABLE") {
-              setcheckdomainresult(false);
-              setloading(false);
-            } else {
-              setcheckdomainresult(true);
-              setloading(false);
-            }
-          })
-          .catch((error) => {
-            toast.error(error.response.data.messages, {
-              position: "top-right",
-              autoClose: 5000,
-              hideProgressBar: false,
-              closeOnClick: true,
-              pauseOnHover: true,
-              draggable: true,
-              progress: undefined,
-            });
-            setloading(false);
-          });
-      } else {
-        setloading(false);
-        toast.error("Please Provide a Valid Domain name !", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      }
-    } else {
-      toast.error("Please Enter Domain name !", {
-        position: "top-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
-    }
-  };
 
-  function loadScript(src) {
-    return new Promise((resolve) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = () => {
-        resolve(true);
-      };
-      script.onerror = () => {
-        resolve(false);
-      };
-      document.body.appendChild(script);
-    });
-  }
-
-  const domaincheck = () => {
-    toast.error("Please Choose Your Domain...", {
-      position: "top-right",
-      autoClose: 2000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-    });
-  };
   //   isDomain
   const [isDomain, setisDomain] = useState(false);
   const [imagurl, setimagurl] = useState(null);
   const [city, setcity] = useState(null);
   const [state, setstate] = useState(null);
+  const [pincode, setpincode] = useState(null);
   const domainChecking = () => {
     setisDomain(true);
   };
@@ -336,18 +253,6 @@ const Signup_ = () => {
   }, []);
   const [user_id, setuser_id] = useState(null);
 
-  const validate = (values) => {
-    const errors = {};
-    if (!values.storename) {
-      errors.name = "Store Name Is Required";
-    }
-    if (!values.pincode) {
-      errors.pincode = "Pincode Required";
-    } else if (values.pincode.length > 6) {
-      errors.pincode = "Must be 6 characters";
-    }
-    return errors;
-  };
   const [currentStore_id, setcurrentStore_id] = useState(null);
   const formik = useFormik({
     initialValues: {
@@ -360,32 +265,45 @@ const Signup_ = () => {
       pincode: "",
       theme: "null",
     },
-    validate,
     onSubmit: async (values) => {
-      if (state === null) {
-        toast.error("Please Select State..", {
+      if (!values.storename) {
+        toast.error("Store Name Is Required...", {
+          autoClose: 5000,
+          transition: Slide,
+        });
+      } else if (pincode === null) {
+        toast.error("Pincode Is Required...", {
+          autoClose: 5000,
+          transition: Slide,
+        });
+      } else if (state === null) {
+        toast.error("Please Select State...", {
           autoClose: 5000,
           transition: Slide,
         });
       } else if (city === null) {
-        toast.error("Please Select City..", {
+        toast.error("Please Select City...", {
           autoClose: 5000,
           transition: Slide,
         });
       } else if (imagurl === null) {
-        toast.error("Please Upload Logo..", {
+        toast.error("Please Upload Logo...", {
           autoClose: 5000,
           transition: Slide,
         });
       } else {
-        values.user_id = user_id;
+        values.user_id = sessionStorage.getItem("user_id");
         values["logo"] = imagurl;
         values["city"] = city;
         values["state"] = state;
+        values["pincode"] = pincode;
+
         if (currentStore_id === null) {
+          setisloading_Store(true);
           var createstore = await CreateStore(values);
           if (createstore.message === "SUCCESS") {
             setcurrentStore_id(createstore.data.id);
+            sessionStorage.setItem("store_id", createstore.data.id);
             toast.success("Store Created Successfully..", {
               autoClose: 2000,
               transition: Slide,
@@ -400,14 +318,19 @@ const Signup_ = () => {
 
               setActiveStep((prevActiveStep) => prevActiveStep + 1);
               setSkipped(newSkipped);
+              setisloading_Store(false);
             }, 2000);
           } else {
+            setisloading_Store(false);
+
             toast.error(createstore.message, {
               autoClose: 2000,
               transition: Slide,
             });
           }
         } else {
+          setisloading_Store(true);
+
           values["id"] = currentStore_id;
           const updatedStore_ = await UpdateStore(values);
           if (updatedStore_.message === "Updated Successfully") {
@@ -425,7 +348,10 @@ const Signup_ = () => {
 
               setActiveStep((prevActiveStep) => prevActiveStep + 1);
               setSkipped(newSkipped);
+              setisloading_Store(false);
             }, 2000);
+          } else {
+            setisloading_Store(false);
           }
         }
       }
@@ -459,7 +385,18 @@ const Signup_ = () => {
   const handleChangecity = async (e) => {
     setcity(e.target.value);
   };
-
+  const changepincode = async (e) => {
+    setpincode(e.target.value);
+    const zipcodeInfo = await axios
+      .get(`https://api.postalpincode.in/pincode/${e.target.value}`)
+      .then((res) => {
+        return res.data;
+      });
+    if (zipcodeInfo[0].PostOffice !== null) {
+      setstate(zipcodeInfo[0].PostOffice[0].State);
+      setcitylist(zipcodeInfo[0].PostOffice);
+    }
+  };
   return (
     <>
       <div className="SingUpPage  ">
@@ -508,7 +445,13 @@ const Signup_ = () => {
                           placeholder="Domain name"
                           type="text"
                         />
-                        <button>Add</button>
+                        <button
+                          onClick={() => {
+                            window.location.reload();
+                          }}
+                        >
+                          Add
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -621,9 +564,20 @@ const Signup_ = () => {
                             ) : null}
                           </div>
 
-                          <button className="font-bold rounded bg-yellow-600 loginBtn	text-white-1000 w-full py-2 px-4 mt-4">
-                            Sign up
-                          </button>
+                          {!isloading_s && (
+                            <button className="font-bold rounded bg-yellow-600 loginBtn	text-white-1000 w-full py-2 px-4 mt-4">
+                              Sign up
+                            </button>
+                          )}
+                          {isloading_s && (
+                            <button
+                              className={`${classes.login_loading} rounded 	text-white-1000  py-3 px-4 mt-4 loginBtn`}
+                              loading={loading}
+                              disabled
+                            >
+                              Loading…
+                            </button>
+                          )}
                         </form>
 
                         <p>
@@ -663,24 +617,14 @@ const Signup_ = () => {
                               onChange={formik.handleChange}
                               defaultValue={formik.values.storename}
                             />
-                            {formik.errors.storename ? (
-                              <div className="text-red-500">
-                                {formik.errors.storename}
-                              </div>
-                            ) : null}
+
                             <input
                               className="border w-full mb-2 p-3 rounded"
                               placeholder="Pin code"
                               name="pincode"
                               type="number"
-                              onChange={formik.handleChange}
-                              defaultValue={formik.values.pincode}
+                              onChange={changepincode}
                             />
-                            {formik.errors.pincode ? (
-                              <div className="text-red-500">
-                                {formik.errors.pincode}
-                              </div>
-                            ) : null}
                             <input
                               className="border w-full mb-2 p-3 rounded"
                               placeholder="Country"
@@ -691,12 +635,16 @@ const Signup_ = () => {
                               onChange={formik.handleChange}
                               defaultValue={formik.values.country}
                             />
-                            {formik.errors.country ? (
-                              <div className="text-red-500">
-                                {formik.errors.country}
-                              </div>
-                            ) : null}
-                            <select
+                            <input
+                              className="border w-full mb-2 p-3 rounded"
+                              placeholder="State"
+                              name="state"
+                              defaultValue={state}
+                              type="text"
+                              disabled
+                            />
+
+                            {/* <select
                               className="border w-full mb-2 p-3 rounded"
                               onChange={handleChangestate}
                               defaultValue={formik.values.state}
@@ -709,7 +657,7 @@ const Signup_ = () => {
                                     </option>
                                   ))
                                 : null}
-                            </select>
+                            </select> */}
 
                             <select
                               className="border w-full mb-2 p-3 rounded"
@@ -719,26 +667,34 @@ const Signup_ = () => {
                               <option>Select City</option>
                               {citylist.length !== 0
                                 ? citylist.map((data, index) => (
-                                    <option value={data} key={index}>
-                                      {data}
+                                    <option value={data.Name} key={index}>
+                                      {data.Name}
                                     </option>
                                   ))
                                 : null}
                             </select>
 
-                            {formik.errors.city ? (
-                              <div className="text-red-500">
-                                {formik.errors.city}
-                              </div>
-                            ) : null}
                             {currentStore_id !== null ? (
                               <button className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4">
                                 Update
                               </button>
                             ) : (
-                              <button className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4">
-                                Save
-                              </button>
+                              <>
+                                {!isloading_Store && (
+                                  <button className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4">
+                                    Save
+                                  </button>
+                                )}
+                                {isloading_Store && (
+                                  <button
+                                    className={`${classes.login_loading} rounded 	text-white-1000 bg-black-500 w-full py-3 px-4 mt-4 loginBtn`}
+                                    loading={loading}
+                                    disabled
+                                  >
+                                    Loading…
+                                  </button>
+                                )}
+                              </>
                             )}
                           </form>
                         </div>

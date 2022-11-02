@@ -76,7 +76,8 @@ const Login = () => {
 
   const getuserdata = async () => {
     var user_id = sessionStorage.getItem("user_id");
-    if (user_id !== null) {
+    var store_id = sessionStorage.getItem("store_id");
+    if (user_id !== null && store_id !== null) {
       window.location.replace("/dashboard");
     }
   };

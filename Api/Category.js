@@ -43,3 +43,14 @@ export const categoryproduct = async (data) => {
     });
   return categoryproduct;
 };
+
+export const categoryupdate = async (data) => {
+  var categoryupdate = await Category.post(`/update`, data)
+    .then((res) => {
+      return res.data;
+    })
+    .catch((err) => {
+      return err.response;
+    });
+  return categoryupdate;
+};

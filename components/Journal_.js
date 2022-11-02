@@ -37,6 +37,7 @@ const Journal_ = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [rows, setrows] = React.useState([]);
+  const [errorlist, seterrorlist] = useState(null);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -76,19 +77,6 @@ const Journal_ = () => {
   };
   const handleClose = () => setOpen(false);
   const [loading, setloading] = useState(false);
-  const validate = (values) => {
-    const errors = {};
-    if (!values.heading) {
-      errors.heading = "Heading Required";
-    }
-    if (!values.description) {
-      errors.description = "Description Required";
-    }
-    if (!values.subheading) {
-      errors.subheading = "Sub Heading Required";
-    }
-    return errors;
-  };
 
   const formik = useFormik({
     initialValues: {
@@ -96,34 +84,43 @@ const Journal_ = () => {
       subheading: "",
       description: "",
     },
-    validate,
+
     onSubmit: async (values) => {
-      setloading(true);
-      var store_id = sessionStorage.getItem("store_id");
-
-      if (imageurl === null) {
-        setloading(false);
-
-        toast.error("Please Select Journal Image..", {
-          autoClose: 5000,
-          transition: Slide,
-        });
-      } else {
-        setloading(false);
-
-        values["image"] = imageurl;
-        values["store"] = store_id;
-        var creteproduct = await CreateJournal(values);
-        if (creteproduct.message === "SUCCESS") {
+      const errors = {};
+      if (!values.heading) {
+        errors.heading = "Heading Required";
+      }
+      if (!values.description) {
+        errors.description = "Description Required";
+      }
+      if (!values.subheading) {
+        errors.subheading = "Sub Heading Required";
+      }
+      seterrorlist(errors);
+      if (Object.keys(errors).length === 0) {
+        var store_id = sessionStorage.getItem("store_id");
+        if (imageurl === null) {
           setloading(false);
-
-          toast.success("Journal Added Successfully..", {
+          toast.error("Please Select Journal Image..", {
             autoClose: 5000,
             transition: Slide,
           });
-          setTimeout(() => {
-            window.location.reload();
-          }, 2000);
+        } else {
+          setloading(true);
+          values["image"] = imageurl;
+          values["store"] = store_id;
+          var creteproduct = await CreateJournal(values);
+          if (creteproduct.message === "SUCCESS") {
+            setloading(false);
+
+            toast.success("Journal Added Successfully..", {
+              autoClose: 5000,
+              transition: Slide,
+            });
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          }
         }
       }
     },
@@ -228,10 +225,8 @@ const Journal_ = () => {
                       onChange={formik.handleChange}
                       defaultValue={formik.values.heading}
                     />
-                    {formik.errors.heading ? (
-                      <div className="text-red-500">
-                        {formik.errors.heading}
-                      </div>
+                    {errorlist !== null ? (
+                      <div className="text-red-500">{errorlist.heading}</div>
                     ) : null}
                     <label>Image</label>
                     <input
@@ -247,10 +242,8 @@ const Journal_ = () => {
                       onChange={formik.handleChange}
                       defaultValue={formik.values.subheading}
                     />
-                    {formik.errors.subheading ? (
-                      <div className="text-red-500">
-                        {formik.errors.subheading}
-                      </div>
+                    {errorlist !== null ? (
+                      <div className="text-red-500">{errorlist.subheading}</div>
                     ) : null}
                     <label>Description</label>
                     <textarea
@@ -260,9 +253,9 @@ const Journal_ = () => {
                       onChange={formik.handleChange}
                       defaultValue={formik.values.description}
                     />
-                    {formik.errors.description ? (
+                    {errorlist !== null ? (
                       <div className="text-red-500">
-                        {formik.errors.description}
+                        {errorlist.description}
                       </div>
                     ) : null}
                     {!loading && (

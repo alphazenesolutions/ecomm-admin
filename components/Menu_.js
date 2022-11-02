@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import Sidebar_ from "./Sidebar_";
 import Nav_ from "./Nav_";
 import dynamic from "next/dynamic";
-
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddBoxIcon from "@mui/icons-material/AddBox";
 import { DragDropContext } from "react-beautiful-dnd";
 import { Allcategory } from "../Api/Category";
 import { Allcategorytype } from "../Api/CategoryType";
@@ -464,25 +466,34 @@ const Menu_ = () => {
                                       {" "}
                                       <div className="flex justify-center">
                                         <button
-                                          className="bg-green-500 w-16 text-white-1000 p-2 mr-2"
+                                          className=" w-12 text-black-1000 p-2 mr-2 ml-2"
                                           id={row.id}
                                           onClick={editbtn}
                                         >
-                                          Edit
+                                          <EditIcon
+                                            id={row.id}
+                                            onClick={editbtn}
+                                          />
                                         </button>
                                         <button
-                                          className="bg-red-500 w-16 text-white-1000 ml-2 p-2"
+                                          className="w-12  text-black-1000 ml-2 mr-2 p-2"
                                           id={row.id}
                                           onClick={deltebtnvalue}
                                         >
-                                          Delete
+                                          <DeleteIcon
+                                            id={row.id}
+                                            onClick={deltebtnvalue}
+                                          />
                                         </button>
                                         <button
-                                          className="bg-red-500 w-16 text-white-1000 ml-2 p-2"
+                                          className=" w-12 text-black-1000 ml-2 mr-2 p-2"
                                           id={row.id}
                                           onClick={viewcate}
                                         >
-                                          Category
+                                          <AddBoxIcon
+                                            id={row.id}
+                                            onClick={viewcate}
+                                          />
                                         </button>
                                       </div>
                                     </TableCell>

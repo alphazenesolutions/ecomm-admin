@@ -42,3 +42,15 @@ export const AllStore = async (data) => {
     });
   return AllStore;
 };
+
+
+export const viewStore = async (data) => {
+  var viewStore = await Store.post(`/view`, data)
+    .then((res) => {
+      return res.data;
+    })
+    .catch((err) => {
+      return err.response;
+    });
+  return viewStore;
+};

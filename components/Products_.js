@@ -15,13 +15,20 @@ import { Avatar } from "@mui/material";
 import { firebase } from "../database/firebase";
 import { CreateProduct, Allproduct, Updateproduct } from "../Api/Product";
 import { Allcategory } from "../Api/Category";
-import { CreateVariation } from "../Api/Variation";
-import { CreateGallery } from "../Api/Gallery";
+import {
+  CreateVariation,
+  viewVariation,
+  destroyVariation,
+} from "../Api/Variation";
+import { CreateGallery, viewGallery, destroyGallery } from "../Api/Gallery";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import slugify from "slugify";
 import Nav_ from "./Nav_";
 import LoadingButton from "@mui/lab/LoadingButton";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
 
 const Products_ = () => {
   const [isPorduct, setisPorduct] = useState(true);
@@ -34,6 +41,7 @@ const Products_ = () => {
   const [productid, setproductid] = React.useState(null);
   const [allcategorydata, setallcategorydata] = React.useState([]);
   const [rows, setrows] = React.useState([]);
+  const [errorlist, seterrorlist] = useState(null);
 
   useEffect(() => {
     getalldata();
@@ -77,7 +85,7 @@ const Products_ = () => {
   //   isVarient
   const [isVarient, setisVarient] = useState(false);
   const VariationsSaveHandler = () => {
-    setisvarient_loading(true);
+    // setisvarient_loading(true);
     var facilitystyle1 = document.getElementsByClassName("valueclass");
     var checkedValue1 = [];
     for (var i = 0; facilitystyle1[i]; ++i) {
@@ -88,23 +96,17 @@ const Products_ = () => {
     for (var i = 0; facilitystyle2[i]; ++i) {
       checkedValue2.push(facilitystyle2[i].value);
     }
-    var facilitystyle3 = document.getElementsByClassName("typeclass");
-    var checkedValue3 = [];
-    for (var i = 0; facilitystyle3[i]; ++i) {
-      checkedValue3.push(facilitystyle3[i].value);
-    }
 
     var facilitystyle4 = document.getElementsByClassName("stockclass");
     var checkedValue4 = [];
     for (var i = 0; facilitystyle4[i]; ++i) {
       checkedValue4.push(facilitystyle4[i].value);
     }
-
     for (var i = 0; i < checkedValue1.length; i++) {
       var data = {
         productID: productid,
         value: checkedValue1[i],
-        type: checkedValue3[i],
+        type: isSize === true ? "Size" : "Color",
         price: checkedValue2[i],
         stock: checkedValue4[i],
       };
@@ -127,30 +129,10 @@ const Products_ = () => {
   const [isGallery, setisGallery] = useState(false);
   const [slugvalue, setslugvalue] = useState(null);
   const validate = (values) => {
+    var text = (Math.random() + 1).toString(36).substring(7);
     const errors = {};
-    if (!values.name) {
-      errors.name = "Name Required";
-    }
-    if (!values.description) {
-      errors.description = "Description Required";
-    }
-    // if (!values.slug) {
-    //   errors.slug = "Slug Required";
-    // }
-    if (!values.price) {
-      errors.price = "Price Required";
-    }
-    if (!values.sale_price) {
-      errors.sale_price = "Sale price Required";
-    }
-    if (!values.stock) {
-      errors.stock = "Stock Required";
-    }
-    if (!values.category) {
-      errors.category = "Category Required";
-    }
-    var slugvalue = slugify(values.name, "_");
-    document.getElementById("slugdata").value = slugvalue;
+    var slugvalue = slugify(values.name, "_").toLowerCase().concat(text);
+    document.getElementById("slugdata").value = slugvalue.toLowerCase();
     return errors;
   };
   const formik = useFormik({
@@ -167,34 +149,52 @@ const Products_ = () => {
     },
     validate,
     onSubmit: async (values) => {
-      setisproduct_loading(true);
-      setisVarient(true);
-      setisPorduct(false);
-      setisGallery(false);
-      if (productimg === null) {
-        setisproduct_loading(false);
-
-        toast.error("Please Upload Product Image", {
-          autoClose: 5000,
-          transition: Slide,
-        });
-      } else {
-        setisproduct_loading(false);
-
-        var store_id = sessionStorage.getItem("store_id");
-        values["original"] = productimg;
-        values["store"] = store_id;
-        values["slug"] = slugify(values.name, "_");
-        var creteproduct = await CreateProduct(values);
-        if (creteproduct.message === "SUCCESS") {
+      const errors = {};
+      if (!values.name) {
+        errors.name = "Name Required";
+      }
+      if (!values.description) {
+        errors.description = "Description Required";
+      }
+      if (!values.price) {
+        errors.price = "Price Required";
+      }
+      if (!values.sale_price) {
+        errors.sale_price = "Sale price Required";
+      }
+      if (!values.stock) {
+        errors.stock = "Stock Required";
+      }
+      if (!values.category) {
+        errors.category = "Category Required";
+      }
+      seterrorlist(errors);
+      if (Object.keys(errors).length === 0) {
+        if (productimg === null) {
           setisproduct_loading(false);
-
-          toast.success("Product Added Successfully..", {
+          toast.error("Please Upload Product Image", {
             autoClose: 5000,
             transition: Slide,
           });
-          setisVarient(true);
-          setproductid(creteproduct.data.id);
+        } else {
+          var text = (Math.random() + 1).toString(36).substring(7);
+          setisproduct_loading(true);
+          var store_id = sessionStorage.getItem("store_id");
+          values["original"] = productimg;
+          values["store"] = store_id;
+          values["slug"] = slugify(values.name, "_").toLowerCase().concat(text);
+          var creteproduct = await CreateProduct(values);
+          if (creteproduct.message === "SUCCESS") {
+            setisproduct_loading(false);
+            toast.success("Product Added Successfully..", {
+              autoClose: 5000,
+              transition: Slide,
+            });
+            setisVarient(true);
+            setisPorduct(false);
+            setisGallery(false);
+            setproductid(creteproduct.data.id);
+          }
         }
       }
     },
@@ -226,7 +226,6 @@ const Products_ = () => {
       var imgurl1 = await file13;
       var img = new Image();
       img.src = imgurl1;
-      console.log(img);
 
       img.onload = async function () {
         let width = this.width;
@@ -239,16 +238,15 @@ const Products_ = () => {
         ) {
           setproductimg(imgurl1);
         } else {
-          toast.info("Image height : 6500px", {
+          toast.error("Image height : 6500px", {
             autoClose: 2000,
             transition: Slide,
           });
-          toast.info("Image width : 4500px", {
+          toast.error("Image width : 4500px", {
             autoClose: 2000,
             transition: Slide,
           });
         }
-        console.log(width, height);
       };
     }
   };
@@ -276,13 +274,36 @@ const Products_ = () => {
     }
     setrow(data);
   };
+  // edit_new_varient
+  const [count_1, setcount_1] = useState(1);
+  const [row_1, setrow_1] = useState([undefined]);
+
+  const addcount_1 = () => {
+    var finalcount = Number(count_1) + Number(1);
+    setcount_1(finalcount);
+    var data = [];
+    var countnew = finalcount;
+    for (var i = 0; i < countnew; i++) {
+      data.push(countnew[i]);
+    }
+    setrow_1(data);
+  };
+  const deleterow_1 = () => {
+    var finalcount = Number(count_1) - Number(1);
+    setcount_1(finalcount);
+    var data = [];
+    var countnew = finalcount;
+    for (var i = 0; i < countnew; i++) {
+      data.push(countnew[i]);
+    }
+    setrow_1(data);
+  };
   const savegallery = async () => {
     setisGalleryLoading(true);
     var galleryimg = document.getElementById("galleryimg").files;
     var galleryimgarray = [];
     if (galleryimg.length !== 0) {
       setisGalleryLoading(false);
-
       toast.info("Please Wait.....", {
         autoClose: 5000,
         transition: Slide,
@@ -361,10 +382,51 @@ const Products_ = () => {
   };
   // isEdit
   const [isEdit, setisEdit] = useState(false);
+  const [editproductid, seteditproductid] = useState(null);
+  const [productcate, setproductcate] = useState(null);
+  const [productimgedit, setproductimgedit] = useState(null);
+  const [editgallerydata, seteditgallerydata] = useState([]);
 
-  const editHandler = () => {
-    setisEdit(true);
-    setisNew(false);
+  const editHandler = async (e) => {
+    var singleproduct = await rows.filter((data) => {
+      return data.id === Number(e.target.id);
+    });
+    if (singleproduct.length !== 0) {
+      seteditproductid(e.target.id);
+      setisEdit(true);
+      setisNew(false);
+      setTimeout(() => {
+        document.getElementById("editproduct").value = singleproduct[0].name;
+        document.getElementById("editdescription").value =
+          singleproduct[0].description;
+        document.getElementById("editslug").value = singleproduct[0].slug;
+        document.getElementById("editprice").value = singleproduct[0].price;
+        document.getElementById("editsaleprice").value =
+          singleproduct[0].sale_price;
+        document.getElementById("editstock").value = singleproduct[0].stock;
+        setproductcate(singleproduct[0].category);
+        setproductimgedit(singleproduct[0].original);
+      }, 2000);
+      var myvariation = await viewVariation({ id: e.target.id });
+      setrow_1(myvariation);
+      setcount_1(myvariation.length);
+      setTimeout(() => {
+        if (myvariation.length !== 0) {
+          for (var i = 0; i < myvariation.length; i++) {
+            document.getElementById(`pricevariation${i}`).value =
+              myvariation[i].price;
+            document.getElementById(`stockvariation${i}`).value =
+              myvariation[i].stock;
+            document.getElementById(`typevariation${i}`).value =
+              myvariation[i].type;
+            document.getElementById(`valuevariation${i}`).value =
+              myvariation[i].value;
+          }
+        }
+      }, 2000);
+      var mygallery = await viewGallery({ id: e.target.id });
+      seteditgallerydata(mygallery);
+    }
   };
   // featured
   const [isFeatured, setisFeatured] = useState(false);
@@ -426,6 +488,198 @@ const Products_ = () => {
     });
     setrows(checkproduct);
   };
+  // add gallery
+  const upload_handler = () => {
+    document.getElementById("file_upload").click();
+    setTimeout(() => {
+      getimageurl();
+    }, 3000);
+  };
+  const getimageurl = async () => {
+    var images = document.getElementById("file_upload").files;
+    if (images.length !== 0) {
+      for (var i = 0; i < images.length; i++) {
+        let file = images[i];
+        if (file.size / 1024 / 1024 > 3) {
+          toast.info("Image size is too large!.. Image must be within 3 MB", {
+            autoClose: 5000,
+            transition: Slide,
+          });
+        } else {
+          let file13 = new Promise((resolve, reject) => {
+            var storageRef = firebase.storage().ref("gallery/" + file.name);
+            storageRef.put(file).then(function (snapshot) {
+              storageRef.getDownloadURL().then(function (url) {
+                //img download link ah ketakiradhu
+                setTimeout(() => resolve(url), 1000);
+              });
+            });
+          });
+          var imgurl1 = await file13;
+          var img = new Image();
+          img.src = imgurl1;
+          img.onload = async function () {
+            let width = this.width;
+            let height = this.height;
+
+            if (
+              width <= 7000 &&
+              width >= 6000 &&
+              height <= 2300 &&
+              height >= 1900
+            ) {
+              var data = {
+                original: imgurl1,
+                productID: editproductid,
+              };
+              CreateGallery(data);
+              setTimeout(async () => {
+                var mygallery = await viewGallery({ id: editproductid });
+                seteditgallerydata(mygallery);
+              }, 2000);
+            } else {
+              toast.info("Image height : 2300px ", {
+                autoClose: 2000,
+                transition: Slide,
+              });
+              toast.info("Image width : 7000px ", {
+                autoClose: 2000,
+                transition: Slide,
+              });
+            }
+          };
+        }
+      }
+    }
+  };
+  const geturl = async (e) => {
+    toast.info("Please Wait...", {
+      autoClose: 5000,
+      transition: Slide,
+    });
+    let file = e.target.files;
+    let file13 = new Promise((resolve, reject) => {
+      var storageRef = firebase.storage().ref("journal/" + file[0].name);
+      storageRef.put(file[0]).then(function (snapshot) {
+        storageRef.getDownloadURL().then(function (url) {
+          //img download link ah ketakiradhu
+          setTimeout(() => resolve(url), 1000);
+        });
+      });
+    });
+    var imgurl1 = await file13;
+    setproductimgedit(imgurl1);
+  };
+  const updatebtn = async () => {
+    var name = document.getElementById("editproduct").value;
+    var description = document.getElementById("editdescription").value;
+    var slug = document.getElementById("editslug").value;
+    var price = document.getElementById("editprice").value;
+    var salesprice = document.getElementById("editsaleprice").value;
+    var stock = document.getElementById("editstock").value;
+    var category = document.getElementById("editcategory").value;
+
+    var newdata = {
+      description: description,
+      slug: slug,
+      name: name,
+      original: productimgedit,
+      price: price,
+      sale_price: salesprice,
+      category: category,
+      stock: stock,
+      id: editproductid,
+    };
+    var updateproduct = await Updateproduct(newdata);
+    var facilitystyle1 = document.getElementsByClassName("valueclassedit");
+    var checkedValue1 = [];
+    for (var i = 0; facilitystyle1[i]; ++i) {
+      checkedValue1.push(facilitystyle1[i].value);
+    }
+    var facilitystyle2 = document.getElementsByClassName("priceclassedit");
+    var checkedValue2 = [];
+    for (var i = 0; facilitystyle2[i]; ++i) {
+      checkedValue2.push(facilitystyle2[i].value);
+    }
+    var facilitystyle3 = document.getElementsByClassName("typeclassedit");
+    var checkedValue3 = [];
+    for (var i = 0; facilitystyle3[i]; ++i) {
+      checkedValue3.push(facilitystyle3[i].value);
+    }
+
+    var facilitystyle4 = document.getElementsByClassName("stockclassedit");
+    var checkedValue4 = [];
+    for (var i = 0; facilitystyle4[i]; ++i) {
+      checkedValue4.push(facilitystyle4[i].value);
+    }
+    var myvariation = await viewVariation({ id: editproductid });
+    if (myvariation.length !== 0) {
+      for (var i = 0; i < myvariation.length; i++) {
+        destroyVariation({ id: myvariation[i].id });
+      }
+    }
+    for (var i = 0; i < checkedValue1.length; i++) {
+      var data = {
+        productID: editproductid,
+        value: checkedValue1[i],
+        type: checkedValue3[i],
+        price: checkedValue2[i],
+        stock: checkedValue4[i],
+      };
+      CreateVariation(data);
+      setTimeout(() => {
+        getalldata();
+        setisNew(false);
+        setisEdit(false);
+      }, 2000);
+    }
+  };
+  const deltegallery = async (e) => {
+    destroyGallery({ id: e.target.id });
+    setTimeout(async () => {
+      toast.success("Gallery Delected successfully...", {
+        autoClose: 2000,
+        transition: Slide,
+      });
+      var mygallery = await viewGallery({ id: editproductid });
+      seteditgallerydata(mygallery);
+    }, 2000);
+  };
+  // isSize && iscolor
+  const [isSize, setisSize] = useState(false);
+  const [isColor, setisColor] = useState(true);
+  const Nav_Size = () => {
+    setisSize(true);
+    setisColor(false);
+  };
+  const Nav_color = () => {
+    setisSize(false);
+    setisColor(true);
+  };
+  // edit_new_varient
+  const [count_2, setcount_2] = useState(1);
+  const [row_2, setrow_2] = useState([undefined]);
+
+  const addcount_2 = () => {
+    var finalcount = Number(count_2) + Number(1);
+    setcount_2(finalcount);
+    var data = [];
+    var countnew = finalcount;
+    for (var i = 0; i < countnew; i++) {
+      data.push(countnew[i]);
+    }
+    setrow_2(data);
+  };
+  const deleterow_2 = () => {
+    var finalcount = Number(count_2) - Number(1);
+    setcount_2(finalcount);
+    var data = [];
+    var countnew = finalcount;
+    for (var i = 0; i < countnew; i++) {
+      data.push(countnew[i]);
+    }
+    setrow_2(data);
+  };
   return (
     <div className="flex ">
       <Sidebar_ />
@@ -463,8 +717,8 @@ const Products_ = () => {
                         onChange={formik.handleChange}
                         defaultValue={formik.values.name}
                       />
-                      {formik.errors.name ? (
-                        <div className="text-red-500">{formik.errors.name}</div>
+                      {errorlist !== null ? (
+                        <div className="text-red-500">{errorlist.name}</div>
                       ) : null}
                       <input
                         className="border w-full mb-2 p-3 rounded"
@@ -474,9 +728,9 @@ const Products_ = () => {
                         onChange={formik.handleChange}
                         defaultValue={formik.values.description}
                       />
-                      {formik.errors.description ? (
+                      {errorlist !== null ? (
                         <div className="text-red-500">
-                          {formik.errors.description}
+                          {errorlist.description}
                         </div>
                       ) : null}
                       <input
@@ -489,9 +743,7 @@ const Products_ = () => {
                         // onChange={formik.handleChange}
                         // defaultValue={formik.values.slug}
                       />
-                      {/* {formik.errors.slug ? (
-                    <div className="text-red-500">{formik.errors.slug}</div>
-                  ) : null} */}
+
                       <input
                         className="border w-full mb-2 p-3 rounded"
                         placeholder="Price"
@@ -500,10 +752,8 @@ const Products_ = () => {
                         onChange={formik.handleChange}
                         defaultValue={formik.values.price}
                       />
-                      {formik.errors.price ? (
-                        <div className="text-red-500">
-                          {formik.errors.price}
-                        </div>
+                      {errorlist !== null ? (
+                        <div className="text-red-500">{errorlist.price}</div>
                       ) : null}
                       <input
                         className="border w-full mb-2 p-3 rounded"
@@ -513,9 +763,9 @@ const Products_ = () => {
                         onChange={formik.handleChange}
                         defaultValue={formik.values.sale_price}
                       />
-                      {formik.errors.sale_price ? (
+                      {errorlist !== null ? (
                         <div className="text-red-500">
-                          {formik.errors.sale_price}
+                          {errorlist.sale_price}
                         </div>
                       ) : null}
                       <input
@@ -526,10 +776,8 @@ const Products_ = () => {
                         onChange={formik.handleChange}
                         defaultValue={formik.values.stock}
                       />
-                      {formik.errors.stock ? (
-                        <div className="text-red-500">
-                          {formik.errors.stock}
-                        </div>
+                      {errorlist !== null ? (
+                        <div className="text-red-500">{errorlist.stock}</div>
                       ) : null}
                       <select
                         className="border w-full mb-2 p-3 rounded"
@@ -546,10 +794,8 @@ const Products_ = () => {
                             ))
                           : null}
                       </select>
-                      {formik.errors.category ? (
-                        <div className="text-red-500">
-                          {formik.errors.category}
-                        </div>
+                      {errorlist !== null ? (
+                        <div className="text-red-500">{errorlist.category}</div>
                       ) : null}
 
                       <label>Product Image</label>
@@ -580,61 +826,132 @@ const Products_ = () => {
                     <h1 className="font-bold	mb-4 font-serif">
                       Select Variations
                     </h1>
-                    {row.map((data) => {
-                      return (
-                        <div className="grid grid-cols-4 gap-4">
-                          <select className="border w-full mb-2 p-3 rounded typeclass">
+                    <div>
+                      {isColor === true ? (
+                        <button
+                          onClick={Nav_color}
+                          className="border mr-4 w-20 mb-2 bg-black-500 text-white-1000"
+                        >
+                          Colors
+                        </button>
+                      ) : (
+                        <button
+                          onClick={Nav_color}
+                          className="border mr-4 w-20 mb-2"
+                        >
+                          Colors
+                        </button>
+                      )}
+                      {isSize === true ? (
+                        <button
+                          onClick={Nav_Size}
+                          className="border  w-20 mb-2 bg-black-500 text-white-1000"
+                        >
+                          Size
+                        </button>
+                      ) : (
+                        <button
+                          onClick={Nav_Size}
+                          className="border  w-20 mb-2"
+                        >
+                          Size
+                        </button>
+                      )}
+                    </div>
+                    {isColor && (
+                      <>
+                        {row.map((data) => {
+                          return (
+                            <div className="grid grid-cols-4 gap-4">
+                              {/* <select className="border w-full mb-2 p-3 rounded typeclass">
                             <option value="null">Select Type</option>
                             <option value="Size">Size</option>
                             <option value="Color">Color</option>
-                            {/* <option value="Ram">Ram</option>
-                            <option value="Storage">Storage</option>
-                            <option value="Display Size">Display Size</option> */}
-                          </select>
-                          <select className="border w-full mb-2 p-3 rounded valueclass">
-                            <option value="null">Select Value</option>
-                            <option value="XS">XS</option>
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                            <option value="X">X</option>
-                            <option value="XL">XL</option>
-                            <option value="XXL">XXL</option>
+                          </select> */}
 
-                            <option value="Red">Red</option>
-                            <option value="Blue">Blue</option>
-                            <option value="White">White</option>
-                            <option value="Pink">Pink</option>
-                            <option value="Orange">Orange</option>
-                            <option value="Yellow">Yellow</option>
-                            <option value="Green">Green</option>
-                          </select>
-                          <input
-                            className="border w-full mb-2 p-3 rounded priceclass"
-                            placeholder="Price"
-                          />
-                          <input
-                            className="border w-full mb-2 p-3 rounded stockclass"
-                            placeholder="Stock"
-                          />
+                              <input
+                                type="color"
+                                className="border w-full mb-2 p-3 h-12 rounded valueclass"
+                              />
 
-                          <div className="flex">
-                            <Avatar
-                              className="bg-black-1000 mr-4"
-                              onClick={deleterow}
-                            >
-                              -
-                            </Avatar>
-                            <Avatar
-                              className="bg-black-1000 "
-                              onClick={addcount}
-                            >
-                              +
-                            </Avatar>
-                          </div>
-                        </div>
-                      );
-                    })}
+                              <input
+                                className="border w-full mb-2 p-3 rounded priceclass"
+                                placeholder="Price"
+                              />
+                              <input
+                                className="border w-full mb-2 p-3 rounded stockclass"
+                                placeholder="Stock"
+                              />
+
+                              <div className="flex">
+                                <Avatar
+                                  className="bg-black-1000 mr-4"
+                                  onClick={deleterow}
+                                >
+                                  -
+                                </Avatar>
+                                <Avatar
+                                  className="bg-black-1000 "
+                                  onClick={addcount}
+                                >
+                                  +
+                                </Avatar>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </>
+                    )}
+                    {isSize && (
+                      <>
+                        {row_2.map((data) => {
+                          return (
+                            <div className="grid grid-cols-4 gap-4">
+                              {/* <select className="border w-full mb-2 p-3 rounded typeclass">
+                            <option value="null">Select Type</option>
+                            <option value="Size">Size</option>
+                            <option value="Color">Color</option>
+                          </select> */}
+
+                              <select className="border w-full mb-2 p-3 rounded valueclass">
+                                <option value="null">Select Value</option>
+                                <option value="XS">XS</option>
+                                <option value="S">S</option>
+                                <option value="M">M</option>
+                                <option value="L">L</option>
+                                <option value="X">X</option>
+                                <option value="XL">XL</option>
+                                <option value="XXL">XXL</option>
+                              </select>
+
+                              <input
+                                className="border w-full mb-2 p-3 rounded priceclass"
+                                placeholder="Price"
+                              />
+                              <input
+                                className="border w-full mb-2 p-3 rounded stockclass"
+                                placeholder="Stock"
+                              />
+
+                              <div className="flex">
+                                <Avatar
+                                  className="bg-black-1000 mr-4"
+                                  onClick={deleterow_2}
+                                >
+                                  -
+                                </Avatar>
+                                <Avatar
+                                  className="bg-black-1000 "
+                                  onClick={addcount_2}
+                                >
+                                  +
+                                </Avatar>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </>
+                    )}
 
                     {!isvarient_loading && (
                       <button
@@ -807,10 +1124,16 @@ const Products_ = () => {
                                 </TableCell>
                                 <TableCell>
                                   <button
+                                    id={row.id}
                                     onClick={editHandler}
-                                    className="border px-5 py-2 hover:bg-white-400"
+                                    className=" px-5 py-2"
                                   >
-                                    Edit
+                                    <p id={row.id} onClick={editHandler}>
+                                      <EditIcon
+                                        id={row.id}
+                                        onClick={editHandler}
+                                      />
+                                    </p>
                                   </button>
                                 </TableCell>
                               </TableRow>
@@ -838,17 +1161,7 @@ const Products_ = () => {
                     <h1 className="mb-3 tracking-wider font-thin text-sm">
                       PRODUCT IMAGE
                     </h1>
-                    <img
-                      className="Edit_image"
-                      src="https://images.pexels.com/photos/12737613/pexels-photo-12737613.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                    />
-                    <h1 className="mt-8 mb-3 tracking-wider font-thin text-sm">
-                      THUMBNAIL IMAGE
-                    </h1>
-                    <img
-                      className="Edit_image_thumbnail"
-                      src="https://images.pexels.com/photos/12737613/pexels-photo-12737613.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-                    />
+                    <img className="Edit_image" src={productimgedit} />
                   </div>
                 </div>
                 <div className="col-span-2 ">
@@ -857,175 +1170,237 @@ const Products_ = () => {
                       <h1 className="font-bold	mb-4 font-serif">
                         About Your Product
                       </h1>
-                      <form>
+                      <div>
                         <input
                           className="border w-full mb-2 p-3 rounded"
-                          placeholder="What’s your product name?"
+                          placeholder="What’s your product name edit?"
                           type="text"
-                          name="name"
-                          onChange={formik.handleChange}
-                          defaultValue={formik.values.name}
+                          id="editproduct"
                         />
-                        {formik.errors.name ? (
-                          <div className="text-red-500">
-                            {formik.errors.name}
-                          </div>
-                        ) : null}
+
                         <input
                           className="border w-full mb-2 p-3 rounded"
                           placeholder="Product Description "
                           type="text"
                           name="description"
-                          onChange={formik.handleChange}
-                          defaultValue={formik.values.description}
+                          id="editdescription"
                         />
-                        {formik.errors.description ? (
-                          <div className="text-red-500">
-                            {formik.errors.description}
-                          </div>
-                        ) : null}
+
                         <input
                           className="border w-full mb-2 p-3 rounded"
                           placeholder="Slug"
                           type="text"
                           name="slug"
-                          onChange={formik.handleChange}
-                          defaultValue={formik.values.slug}
+                          id="editslug"
                         />
-                        {formik.errors.slug ? (
-                          <div className="text-red-500">
-                            {formik.errors.slug}
-                          </div>
-                        ) : null}
+
                         <input
                           className="border w-full mb-2 p-3 rounded"
                           placeholder="Price"
                           type="text"
                           name="price"
-                          onChange={formik.handleChange}
-                          defaultValue={formik.values.price}
+                          id="editprice"
                         />
-                        {formik.errors.price ? (
-                          <div className="text-red-500">
-                            {formik.errors.price}
-                          </div>
-                        ) : null}
+
                         <input
                           className="border w-full mb-2 p-3 rounded"
                           placeholder="Sale Price"
                           type="text"
                           name="sale_price"
-                          onChange={formik.handleChange}
-                          defaultValue={formik.values.sale_price}
+                          id="editsaleprice"
                         />
-                        {formik.errors.sale_price ? (
-                          <div className="text-red-500">
-                            {formik.errors.sale_price}
-                          </div>
-                        ) : null}
                         <input
                           className="border w-full mb-2 p-3 rounded"
                           placeholder="Stock"
                           type="text"
                           name="stock"
-                          onChange={formik.handleChange}
-                          defaultValue={formik.values.stock}
+                          id="editstock"
                         />
-                        {formik.errors.stock ? (
-                          <div className="text-red-500">
-                            {formik.errors.stock}
-                          </div>
-                        ) : null}
                         <select
                           className="border w-full mb-2 p-3 rounded"
                           name="category"
-                          onChange={formik.handleChange}
-                          defaultValue={formik.values.category}
+                          id="editcategory"
                         >
                           <option>Select category</option>
                           {allcategorydata.length !== 0
-                            ? allcategorydata.map((data, index) => (
-                                <option key={index} value={data.id}>
-                                  {data.category_name}
-                                </option>
-                              ))
+                            ? allcategorydata.map((data, index) =>
+                                productcate === data.category_name ? (
+                                  <option
+                                    key={index}
+                                    value={data.category_name}
+                                    selected
+                                  >
+                                    {data.category_name}
+                                  </option>
+                                ) : (
+                                  <option
+                                    key={index}
+                                    value={data.category_name}
+                                  >
+                                    {data.category_name}
+                                  </option>
+                                )
+                              )
                             : null}
                         </select>
-                        {formik.errors.category ? (
-                          <div className="text-red-500">
-                            {formik.errors.category}
-                          </div>
-                        ) : null}
-
                         <label>Product Image</label>
-
                         <input
                           className="border w-full mb-2 p-3 rounded"
                           type="file"
-                          onChange={productimage}
+                          onChange={geturl}
                         />
                         <div>
-                          <h1>Variations</h1>
-                          <div className="grid grid-cols-5 gap-8 ">
-                            <div className="flex border justify-between px-4 py-2 rounded-lg items-center">
-                              <p> Free </p>
-                              <Avatar
-                                style={{
-                                  width: "15px",
-                                  height: "15px",
-                                  padding: "8px",
-                                  backgroundColor: "red",
-                                }}
-                              >
-                                <p>x</p>
-                              </Avatar>
-                            </div>
-                            <div className="flex border justify-between px-4 py-2 rounded-lg items-center">
-                              <p> xxxl </p>
-                              <Avatar
-                                style={{
-                                  width: "15px",
-                                  height: "15px",
-                                  padding: "8px",
-                                  backgroundColor: "red",
-                                }}
-                              >
-                                <p>x</p>
-                              </Avatar>
-                            </div>
-                            <div className="flex border justify-between px-4 py-2 rounded-lg items-center">
-                              <p> xxl </p>
-                              <Avatar
-                                style={{
-                                  width: "15px",
-                                  height: "15px",
-                                  padding: "8px",
-                                  backgroundColor: "red",
-                                }}
-                              >
-                                <p>x</p>
-                              </Avatar>
-                            </div>
-                            <div className="flex border justify-between px-4 py-2 rounded-lg items-center">
-                              <p> xl </p>
-                              <Avatar
-                                style={{
-                                  width: "15px",
-                                  height: "15px",
-                                  padding: "8px",
-                                  backgroundColor: "red",
-                                }}
-                              >
-                                <p>x</p>
-                              </Avatar>
-                            </div>
-                          </div>
-                        </div>
+                          <h1 className="font-bold	mb-4 font-serif">
+                            Select Variations
+                          </h1>
+                          {row_1.map((data, index) => {
+                            return (
+                              <div className="grid grid-cols-5 gap-4">
+                                <select
+                                  className="border w-full mb-2 p-3 rounded typeclassedit"
+                                  id={`typevariation${index}`}
+                                >
+                                  <option value="null">Select Type</option>
+                                  <option value="Size">Size</option>
+                                  <option value="Color">Color</option>
+                                </select>
+                                <select
+                                  className="border w-full mb-2 p-3 rounded valueclassedit"
+                                  id={`valuevariation${index}`}
+                                >
+                                  <option value="null">Select Value</option>
+                                  <option value="XS">XS</option>
+                                  <option value="S">S</option>
+                                  <option value="M">M</option>
+                                  <option value="L">L</option>
+                                  <option value="X">X</option>
+                                  <option value="XL">XL</option>
+                                  <option value="XXL">XXL</option>
 
-                        <button className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4">
-                          Save
+                                  <option value="Red">Red</option>
+                                  <option value="Blue">Blue</option>
+                                  <option value="White">White</option>
+                                  <option value="Pink">Pink</option>
+                                  <option value="Orange">Orange</option>
+                                  <option value="Yellow">Yellow</option>
+                                  <option value="Green">Green</option>
+                                </select>
+                                <input
+                                  className="border w-full mb-2 p-3 rounded priceclassedit"
+                                  placeholder="Price"
+                                  id={`pricevariation${index}`}
+                                />
+                                <input
+                                  className="border w-full mb-2 p-3 rounded stockclassedit"
+                                  placeholder="Stock"
+                                  id={`stockvariation${index}`}
+                                />
+
+                                <div className="flex">
+                                  <Avatar
+                                    className="bg-black-1000 mr-4"
+                                    onClick={deleterow_1}
+                                  >
+                                    -
+                                  </Avatar>
+                                  <Avatar
+                                    className="bg-black-1000 "
+                                    onClick={addcount_1}
+                                  >
+                                    +
+                                  </Avatar>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div>
+                          <h1 className="font-bold	mb-4 font-serif">Gallery</h1>
+                          <input
+                            type="file"
+                            className="border p-2"
+                            id="file_upload"
+                            style={{ visibility: "hidden" }}
+                            multiple
+                          />
+                          <button
+                            className="float-right mr-4"
+                            onClick={upload_handler}
+                          >
+                            <AddCircleIcon />
+                          </button>
+                          <Paper sx={{ width: "100%", overflow: "hidden" }}>
+                            <TableContainer sx={{ maxHeight: 640 }}>
+                              <Table stickyHeader aria-label="sticky table">
+                                <TableHead>
+                                  <TableRow>
+                                    <TableCell className="text-md text-black-800 font-bold">
+                                      S.No
+                                    </TableCell>
+                                    <TableCell className="text-md text-black-800 font-bold">
+                                      Image
+                                    </TableCell>
+                                    <TableCell className="text-md text-black-800 font-bold">
+                                      Action
+                                    </TableCell>
+                                  </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                  {editgallerydata.length !== 0
+                                    ? editgallerydata.map((data, index) => (
+                                        <TableRow
+                                          hover
+                                          role="checkbox"
+                                          tabIndex={-1}
+                                          key={index}
+                                        >
+                                          <TableCell>{index + 1}</TableCell>
+                                          <TableCell>
+                                            {" "}
+                                            <div className="flex items-center">
+                                              <img
+                                                src={data.original}
+                                                style={{
+                                                  width: "50px",
+                                                  height: "50px",
+                                                }}
+                                              />
+                                            </div>
+                                          </TableCell>
+                                          <TableCell>
+                                            <button className="px-5 py-2">
+                                              <p>
+                                                <DeleteIcon
+                                                  id={data.id}
+                                                  onClick={deltegallery}
+                                                />
+                                              </p>
+                                            </button>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))
+                                    : null}
+                                </TableBody>
+                              </Table>
+                            </TableContainer>
+                            <TablePagination
+                              rowsPerPageOptions={[10, 25, 100]}
+                              component="div"
+                              count={rows.length}
+                              rowsPerPage={rowsPerPage}
+                              page={page}
+                              onPageChange={handleChangePage}
+                              onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
+                          </Paper>
+                        </div>
+                        <button
+                          className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4"
+                          onClick={updatebtn}
+                        >
+                          Update
                         </button>
-                      </form>
+                      </div>
                     </div>
                   </>
                 </div>

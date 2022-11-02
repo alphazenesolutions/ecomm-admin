@@ -89,11 +89,12 @@ const MyStore_ = () => {
           }
         }
       }
-      if (userelementslist.length !== 0) {
+      var myelement = await ViewElements({ id: userid });
+      if (myelement.data.length !== 0) {
         var data = {
           user_id: userid,
           element_list: orderlistresult.toString(),
-          id: userelementslist[0].id,
+          id: myelement.data[0].id,
         };
         await UpdateUserelements(data);
       } else {
@@ -141,11 +142,12 @@ const MyStore_ = () => {
       }
     }
     setState(newState);
-    if (userelementslist.length !== 0) {
+    var myelement = await ViewElements({ id: userid });
+    if (myelement.data.length !== 0) {
       var data = {
         user_id: userid,
         element_list: orderlistresult.toString(),
-        id: userelementslist[0].id,
+        id: myelement.data[0].id,
       };
       await UpdateUserelements(data);
     } else {
@@ -331,17 +333,14 @@ const MyStore_ = () => {
             });
           });
           var imgurl1 = await file13;
-          console.log(imgurl1);
           var img = new Image();
           img.src = imgurl1;
-          console.log(img);
           img.onload = async function () {
             let width = this.width;
             let height = this.height;
-            console.log(width, height);
             if (
               width <= 7000 &&
-              width >= 6000 &&
+              width >= 5000 &&
               height <= 2300 &&
               height >= 1900
             ) {
@@ -413,7 +412,7 @@ const MyStore_ = () => {
               </div>
               <div>
                 {isHomeSection && !homecover && !isNavBarSection && !isAbout && (
-                  <div className="Home_section_ mt-4 px-16 mt-10">
+                  <div className=" mt-4 px-16 mt-10">
                     <h1 className="text-2xl mb-1">Homepage Layout Settings</h1>
                     <p className="mb-4 mt-1">
                       Drag and drop to enable and disable section you want
@@ -564,7 +563,7 @@ const MyStore_ = () => {
                 )}
                 {!isHomeSection && !homecover && isNavBarSection && !isAbout && (
                   <div className="mt-4 px-16 mt-10">
-                    <div className="Stepper_container_1 MyStore_Theme">
+                    <div className=" MyStore_Theme">
                       <h1 className="text-2xl"> Theme Settings </h1>
                       <p className="my-1">
                         Choose a the theme of your website.
@@ -624,7 +623,7 @@ const MyStore_ = () => {
                 )}
                 {!isHomeSection && !homecover && !isNavBarSection && isAbout && (
                   <div className="mt-4 px-16 mt-10">
-                    <div className="Stepper_container_1 MyStore_Theme">
+                    <div className="Stepper_container_11 MyStore_Theme">
                       <h1 className="text-2xl">About Us</h1>
                       <p>Fill the details to be shown in your about section</p>
                       <div className="mt-4 flex flex-col items-start">
@@ -708,7 +707,7 @@ const initialData = {
     },
     "column-2": {
       id: "column-2",
-      title: "Selected Sections",
+      title: "",
       taskIds: [],
     },
   },

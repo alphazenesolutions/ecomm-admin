@@ -8,7 +8,14 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { Allcategory, Creatcategory, Deltecategory } from "../Api/Category";
+import EditIcon from "@mui/icons-material/Edit";
+import {
+  Allcategory,
+  Creatcategory,
+  Deltecategory,
+  categoryproduct,
+  categoryupdate,
+} from "../Api/Category";
 import { toast, Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { firebase } from "../database/firebase";
@@ -16,6 +23,8 @@ import { Allcategorytype } from "../Api/CategoryType";
 import slugify from "slugify";
 import Nav_ from "./Nav_";
 import { LoadingButton } from "@mui/lab";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Avatar } from "@mui/material";
 
 const Category_ = () => {
   const [page, setPage] = React.useState(0);
@@ -33,8 +42,12 @@ const Category_ = () => {
   };
   // products
   const [isNew, setisNew] = useState(false);
+  const [isedit, setisedit] = useState(false);
+  const [editimgurl, seteditimgurl] = useState(null);
+  const [categoryid, setcategoryid] = useState(null);
   const Nav_newProduct = () => {
     setisNew(false);
+    setisedit(false);
   };
   const Nav_allProduct = () => {
     setisNew(true);
@@ -44,27 +57,31 @@ const Category_ = () => {
   }, []);
   const getalldata = async () => {
     var store_id = sessionStorage.getItem("store_id");
-
     var allcategory = await Allcategory();
     var store_category = allcategory.data.filter((data) => {
       return data.store == store_id;
     });
     var categorytype = await Allcategorytype();
     setcategorytype(categorytype.data);
-    setrows(store_category);
+    var filterproduct = [];
+    for (var i = 0; i < store_category.length; i++) {
+      var cateproduct = await categoryproduct({
+        id: store_category[i].id,
+        storeid: sessionStorage.getItem("store_id"),
+      });
+      filterproduct.push({
+        category: store_category[i],
+        product: cateproduct.data.length,
+      });
+    }
+    setrows(filterproduct);
   };
   const [isloading, setisloading] = useState(false);
   const savebtn = async () => {
     setisloading(true);
     var categoryname = document.getElementById("categoryname").value;
     var categoryimg = document.getElementById("categoryimg").files;
-    // var categorygender = document.getElementById("categorygender").value;
-    // if (categorygender.length === "Select Gender") {
-    //   toast.error("Gender Required..", {
-    //     autoClose: 5000,
-    //     transition: Slide,
-    //   });
-    // } else
+
     if (categoryname.length === 0) {
       setisloading(false);
       toast.error("Category Name Required..", {
@@ -83,8 +100,8 @@ const Category_ = () => {
           autoClose: 5000,
           transition: Slide,
         });
-      } else {
         setisloading(false);
+      } else {
         var store_id = sessionStorage.getItem("store_id");
         toast.info("Please Wait..", {
           autoClose: 5000,
@@ -118,6 +135,8 @@ const Category_ = () => {
             transition: Slide,
           });
           setTimeout(() => {
+            setisloading(false);
+
             window.location.reload();
           }, 3000);
         }
@@ -154,6 +173,53 @@ const Category_ = () => {
   const resetbtn = () => {
     getalldata();
     document.getElementById("searchcategory").value = "";
+  };
+  const edithandler = async (e) => {
+    var singlecat = await rows.filter((data) => {
+      return data.category.id == e.target.id;
+    });
+    if (singlecat.length !== 0) {
+      setisNew(true);
+      setisedit(true);
+      seteditimgurl(singlecat[0].category.category_image);
+      setcategoryid(singlecat[0].category.id);
+      setTimeout(() => {
+        document.getElementById("categoryname").value =
+          singlecat[0].category.category_name;
+      }, 2000);
+    }
+  };
+  const geturl = async (e) => {
+    toast.info("Please Wait...", {
+      autoClose: 5000,
+      transition: Slide,
+    });
+    let file = e.target.files;
+    let file13 = new Promise((resolve, reject) => {
+      var storageRef = firebase.storage().ref("journal/" + file[0].name);
+      storageRef.put(file[0]).then(function (snapshot) {
+        storageRef.getDownloadURL().then(function (url) {
+          //img download link ah ketakiradhu
+          setTimeout(() => resolve(url), 1000);
+        });
+      });
+    });
+    var imgurl1 = await file13;
+    seteditimgurl(imgurl1);
+  };
+  const updatebtn = async () => {
+    var categoryname = document.getElementById("categoryname").value;
+    var data = {
+      category_name: categoryname,
+      category_image: editimgurl,
+      id: categoryid,
+    };
+    var updatedata = await categoryupdate(data);
+    if (updatedata.message === "Updated Successfully") {
+      getalldata();
+      setisNew(false);
+      setisedit(false);
+    }
   };
   return (
     <div className="flex ">
@@ -200,26 +266,62 @@ const Category_ = () => {
                   id="categoryname"
                 />
                 <label>Category Image</label>
-                <input
-                  className="border w-full mb-2 p-3 rounded"
-                  type="file"
-                  id="categoryimg"
-                />
-                {!isloading && (
-                  <button
-                    className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4"
-                    onClick={savebtn}
-                  >
-                    Save
-                  </button>
+                {isedit === true && (
+                  <img src={editimgurl} alt="Logo" width={50} height={50} />
                 )}
-                {isloading && (
-                  <LoadingButton
-                    className="rounded bg-white-400	text-white-1000 w-full p-3 mt-4"
-                    loading
-                  >
-                    Submit
-                  </LoadingButton>
+
+                {isedit === true ? (
+                  <input
+                    className="border w-full mb-2 p-3 rounded"
+                    type="file"
+                    onChange={geturl}
+                  />
+                ) : (
+                  <input
+                    className="border w-full mb-2 p-3 rounded"
+                    type="file"
+                    id="categoryimg"
+                  />
+                )}
+
+                {isedit === true ? (
+                  <>
+                    {!isloading && (
+                      <button
+                        className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4"
+                        onClick={updatebtn}
+                      >
+                        Update
+                      </button>
+                    )}
+                    {isloading && (
+                      <LoadingButton
+                        className="rounded bg-white-400	text-white-1000 w-full p-3 mt-4"
+                        loading
+                      >
+                        Submit
+                      </LoadingButton>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {!isloading && (
+                      <button
+                        className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4"
+                        onClick={savebtn}
+                      >
+                        Save
+                      </button>
+                    )}
+                    {isloading && (
+                      <LoadingButton
+                        className="rounded bg-white-400	text-white-1000 w-full p-3 mt-4"
+                        loading
+                      >
+                        Submit
+                      </LoadingButton>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -255,11 +357,11 @@ const Category_ = () => {
                           <TableCell className="text-md text-black-800 font-bold">
                             Category Image
                           </TableCell>
-                          {/* <TableCell className="text-md text-black-800 font-bold">
-                            Category Gender
-                          </TableCell> */}
                           <TableCell className="text-md text-black-800 font-bold">
                             Category Name
+                          </TableCell>
+                          <TableCell className="text-md text-black-800 font-bold">
+                            Product Count
                           </TableCell>
                           <TableCell className="text-md text-black-800 font-bold">
                             Action
@@ -282,23 +384,48 @@ const Category_ = () => {
                               >
                                 <TableCell>
                                   <img
-                                    src={row.category_image}
+                                    src={row.category.category_image}
                                     alt="Logo"
                                     width={80}
                                     height={80}
                                   />
                                 </TableCell>
                                 {/* <TableCell>{row.categorygender}</TableCell> */}
-                                <TableCell>{row.category_name}</TableCell>
+                                <TableCell>
+                                  {row.category.category_name}
+                                </TableCell>
+                                <TableCell>{row.product}</TableCell>
                                 <TableCell>
                                   {" "}
-                                  <button
-                                    id={row.id}
-                                    onClick={deltebtn}
-                                    className="bg-red-500 text-white-1000 p-2"
-                                  >
-                                    Delete
-                                  </button>
+                                  <div className="flex">
+                                    <Avatar
+                                      id={row.category.id}
+                                      onClick={edithandler}
+                                      className=" text-black-1000 p-2 category_Edit mr-2"
+                                    >
+                                      <p
+                                        id={row.category.id}
+                                        onClick={edithandler}
+                                      >
+                                        <EditIcon
+                                          id={row.category.id}
+                                          className="Category_edit"
+                                          onClick={edithandler}
+                                        />
+                                      </p>
+                                    </Avatar>
+                                    <Avatar
+                                      id={row.category.id}
+                                      className=" text-black-1000 p-2 category_delete ml-2"
+                                    >
+                                      <p
+                                        id={row.category.id}
+                                        onClick={deltebtn}
+                                      >
+                                        x
+                                      </p>
+                                    </Avatar>
+                                  </div>
                                 </TableCell>
                               </TableRow>
                             );
