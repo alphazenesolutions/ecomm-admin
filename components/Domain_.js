@@ -445,18 +445,19 @@ const Signup_ = () => {
                           placeholder="Domain name"
                           type="text"
                         />
+                        <button>Add</button>
                         <button
                           onClick={() => {
                             window.location.reload();
                           }}
                         >
-                          Add
+                          Skip
                         </button>
                       </div>
                     </div>
                   </div>
                 )}
-                {activeStep == 0 && (
+                {activeStep == 1 && (
                   <div className="Stepper_container_1">
                     <div>
                       <div
@@ -588,7 +589,7 @@ const Signup_ = () => {
                     </div>
                   </div>
                 )}
-                {activeStep == 1 && (
+                {activeStep == 0 && (
                   <div className="Stepper_container__1">
                     <div>
                       <div>
