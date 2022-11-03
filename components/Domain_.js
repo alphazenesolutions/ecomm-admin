@@ -154,7 +154,7 @@ const Signup_ = () => {
       window.location.replace("/dashboard");
     }
   };
-  const [activeStep, setActiveStep] = React.useState(1);
+  const [activeStep, setActiveStep] = React.useState(0);
   const [skipped, setSkipped] = React.useState(new Set());
 
   const isStepOptional = (step) => {
@@ -457,7 +457,7 @@ const Signup_ = () => {
                     </div>
                   </div>
                 )}
-                {activeStep == 1 && (
+                {activeStep == 0 && (
                   <div className="Stepper_container_1">
                     <div>
                       <div
@@ -589,7 +589,7 @@ const Signup_ = () => {
                     </div>
                   </div>
                 )}
-                {activeStep == 0 && (
+                {activeStep == 1 && (
                   <div className="Stepper_container__1">
                     <div>
                       <div>
