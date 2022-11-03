@@ -131,7 +131,7 @@ const Products_ = () => {
   const validate = (values) => {
     var text = (Math.random() + 1).toString(36).substring(7);
     const errors = {};
-    var slugvalue = slugify(values.name, "_").toLowerCase().concat(text);
+    var slugvalue = slugify(values.name, "_").toLowerCase().concat("_",text);
     document.getElementById("slugdata").value = slugvalue.toLowerCase();
     return errors;
   };
@@ -182,7 +182,7 @@ const Products_ = () => {
           var store_id = sessionStorage.getItem("store_id");
           values["original"] = productimg;
           values["store"] = store_id;
-          values["slug"] = slugify(values.name, "_").toLowerCase().concat(text);
+          values["slug"] = slugify(values.name, "_").toLowerCase().concat("_",text);
           var creteproduct = await CreateProduct(values);
           if (creteproduct.message === "SUCCESS") {
             setisproduct_loading(false);
@@ -201,10 +201,6 @@ const Products_ = () => {
   });
 
   const productimage = async (e) => {
-    toast.info("Please Wait...", {
-      autoClose: 5000,
-      transition: Slide,
-    });
     let file = e.target.files;
     if (file[0].size / 1024 / 1024 > 3) {
       toast.info("Image size is too large!.. Image must be within 3 MB", {
@@ -212,6 +208,10 @@ const Products_ = () => {
         transition: Slide,
       });
     } else {
+      toast.info("Please Wait Image is uploading...", {
+        autoClose: 5000,
+        transition: Slide,
+      });
       let file13 = new Promise((resolve, reject) => {
         var storageRef = firebase
           .storage()
@@ -237,12 +237,16 @@ const Products_ = () => {
           height >= 6000
         ) {
           setproductimg(imgurl1);
+          toast.success("Image Uploaded...", {
+            autoClose: 5000,
+            transition: Slide,
+          });
         } else {
-          toast.error("Image height : 6500px", {
+          toast.error("Image height should be within 6500 px..", {
             autoClose: 2000,
             transition: Slide,
           });
-          toast.error("Image width : 4500px", {
+          toast.error("Image Width should be within 4500 px..", {
             autoClose: 2000,
             transition: Slide,
           });
@@ -299,12 +303,11 @@ const Products_ = () => {
     setrow_1(data);
   };
   const savegallery = async () => {
-    setisGalleryLoading(true);
     var galleryimg = document.getElementById("galleryimg").files;
     var galleryimgarray = [];
     if (galleryimg.length !== 0) {
-      setisGalleryLoading(false);
-      toast.info("Please Wait.....", {
+      setisGalleryLoading(true);
+      toast.info("Please Wait Image is uploading...", {
         autoClose: 5000,
         transition: Slide,
       });
@@ -340,11 +343,11 @@ const Products_ = () => {
             ) {
               galleryimgarray.push(imgurl1);
             } else {
-              toast.info("Image height : 6500px", {
+              toast.error("Image height should be within 6500 px..", {
                 autoClose: 2000,
                 transition: Slide,
               });
-              toast.info("Image width : 4500px", {
+              toast.error("Image Width should be within 4500 px..", {
                 autoClose: 2000,
                 transition: Slide,
               });
@@ -355,7 +358,6 @@ const Products_ = () => {
     }
     if (galleryimgarray.length !== 0) {
       setisGalleryLoading(false);
-
       for (var i = 0; i < galleryimgarray.length; i++) {
         var data = {
           original: galleryimgarray[i],
@@ -363,7 +365,6 @@ const Products_ = () => {
         };
         CreateGallery(data);
       }
-
       toast.success("Gallery Uploaded Successfully.....", {
         autoClose: 5000,
         transition: Slide,
@@ -523,7 +524,7 @@ const Products_ = () => {
             let height = this.height;
 
             if (
-              width <= 7000 &&
+              width <= 6500 &&
               width >= 6000 &&
               height <= 2300 &&
               height >= 1900
@@ -538,11 +539,11 @@ const Products_ = () => {
                 seteditgallerydata(mygallery);
               }, 2000);
             } else {
-              toast.info("Image height : 2300px ", {
+              toast.error("Image height should be within 6500 px..", {
                 autoClose: 2000,
                 transition: Slide,
               });
-              toast.info("Image width : 7000px ", {
+              toast.error("Image Width should be within 2300 px..", {
                 autoClose: 2000,
                 transition: Slide,
               });

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Nav_ from "./Nav_";
 import Sidebar_ from "./Sidebar_";
 import Citylist from "./citylist.json";
-import { viewStore,UpdateStore } from "../Api/Store";
+import { viewStore, UpdateStore } from "../Api/Store";
 import { firebase } from "../database/firebase";
 import { toast, Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -30,14 +30,26 @@ const Setting_ = () => {
       setstorepincode(Single_Store.data[0].pincode);
       setstorestate(Single_Store.data[0].state);
       setstorecity(Single_Store.data[0].city);
-      setTimeout(async () => {
-        var singlestate = await Citylist.states.filter((data) => {
-          return data.state === Single_Store.data[0].state;
+      const zipcodeInfo = await axios
+        .get(
+          `https://api.postalpincode.in/pincode/${Single_Store.data[0].pincode}`
+        )
+        .then((res) => {
+          return res.data;
         });
-        setcitylist(singlestate[0].districts);
-      }, 2000);
+      if (zipcodeInfo[0].PostOffice !== null) {
+        setTimeout(async () => {
+          setcitylist(zipcodeInfo[0].PostOffice);
+        }, 2000);
+      }
+      // setTimeout(async () => {
+      //   var singlestate = await Citylist.states.filter((data) => {
+      //     return data.state === Single_Store.data[0].state;
+      //   });
+      //   setcitylist(singlestate[0].districts);
+      // }, 2000);
     }
-    setstatelist(Citylist.states);
+    // setstatelist(Citylist.states);
   };
   const [statelist, setstatelist] = useState([]);
   const [citylist, setcitylist] = useState([]);
@@ -72,7 +84,7 @@ const Setting_ = () => {
     }
   };
   const geturl = async (e) => {
-    toast.info("Please Wait...", {
+    toast.info("Please Wait Image is uploading...", {
       autoClose: 5000,
       transition: Slide,
     });
@@ -88,6 +100,10 @@ const Setting_ = () => {
     });
     var imgurl1 = await file13;
     setstorelogo(imgurl1);
+    toast.success("Image Uploaded...", {
+      autoClose: 5000,
+      transition: Slide,
+    });
   };
   const setstorenamevalue = async (e) => {
     setstorename(e.target.value);
@@ -162,12 +178,20 @@ const Setting_ = () => {
                         type="text"
                         disabled
                       />
+                      <input
+                        className="border w-full mb-2 p-3 rounded"
+                        placeholder="state"
+                        name="state"
+                        defaultValue={storestate}
+                        type="text"
+                        disabled
+                      />
                       {/* {formik.errors.country ? (
                         <div className="text-red-500">
                           {formik.errors.country}
                         </div>
                       ) : null} */}
-                      <select
+                      {/* <select
                         className="border w-full mb-2 p-3 rounded"
                         onChange={handleChangestate}
                       >
@@ -185,7 +209,7 @@ const Setting_ = () => {
                               )
                             )
                           : null}
-                      </select>
+                      </select> */}
                       <select
                         className="border w-full mb-2 p-3 rounded"
                         onChange={handleChangecity}
@@ -193,21 +217,18 @@ const Setting_ = () => {
                         <option>Select City</option>
                         {citylist.length !== 0
                           ? citylist.map((data, index) =>
-                              storecity === data ? (
+                              storecity === data.Name ? (
                                 <option value={storecity} selected key={index}>
                                   {storecity}
                                 </option>
                               ) : (
-                                <option value={data} key={index}>
-                                  {data}
+                                <option value={data.Name} key={index}>
+                                  {data.Name}
                                 </option>
                               )
                             )
                           : null}
                       </select>
-                      {/* {formik.errors.city ? (
-                        <div className="text-red-500">{formik.errors.city}</div>
-                      ) : null} */}
                       <button
                         className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4"
                         onClick={updatebtn}

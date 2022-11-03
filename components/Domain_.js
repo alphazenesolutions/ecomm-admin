@@ -358,7 +358,7 @@ const Signup_ = () => {
     },
   });
   const geturl = async (e) => {
-    toast.info("Please Wait...", {
+    toast.info("Please Wait Image is uploading...", {
       autoClose: 5000,
       transition: Slide,
     });
@@ -374,6 +374,10 @@ const Signup_ = () => {
     });
     var imgurl1 = await file13;
     setimagurl(imgurl1);
+    toast.success("Image Uploaded...", {
+      autoClose: 5000,
+      transition: Slide,
+    });
   };
   const handleChangestate = async (e) => {
     var singlestate = await statelist.filter((data) => {

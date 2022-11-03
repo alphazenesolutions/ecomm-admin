@@ -103,7 +103,7 @@ const Category_ = () => {
         setisloading(false);
       } else {
         var store_id = sessionStorage.getItem("store_id");
-        toast.info("Please Wait..", {
+        toast.info("Please Wait Image is uploading...", {
           autoClose: 5000,
           transition: Slide,
         });
@@ -122,14 +122,12 @@ const Category_ = () => {
         var data = {
           category_name: categoryname,
           category_image: imgurl1,
-          // categorygender: categorygender,
           store: store_id,
           slug: slugify(categoryname, "_"),
         };
         var createcategory = await Creatcategory(data);
         if (createcategory.message === "SUCCESS") {
           setisloading(false);
-
           toast.success("Category Added Successfully..", {
             autoClose: 5000,
             transition: Slide,
@@ -190,7 +188,7 @@ const Category_ = () => {
     }
   };
   const geturl = async (e) => {
-    toast.info("Please Wait...", {
+    toast.info("Please Wait Image is uploading...", {
       autoClose: 5000,
       transition: Slide,
     });
@@ -206,6 +204,10 @@ const Category_ = () => {
     });
     var imgurl1 = await file13;
     seteditimgurl(imgurl1);
+    toast.success("Image Uploaded...", {
+      autoClose: 5000,
+      transition: Slide,
+    });
   };
   const updatebtn = async () => {
     var categoryname = document.getElementById("categoryname").value;

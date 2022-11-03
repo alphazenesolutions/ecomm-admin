@@ -126,7 +126,7 @@ const Journal_ = () => {
     },
   });
   const geturl = async (e) => {
-    toast.info("Please Wait...", {
+    toast.info("Please Wait Image is uploading...", {
       autoClose: 5000,
       transition: Slide,
     });
@@ -148,6 +148,10 @@ const Journal_ = () => {
       });
       var imgurl1 = await file13;
       setimageurl(imgurl1);
+      toast.success("Image Uploaded...", {
+        autoClose: 5000,
+        transition: Slide,
+      });
     }
   };
   useEffect(() => {
