@@ -273,30 +273,34 @@ const Dashboard_ = () => {
         data: chartdata,
         borderColor: "rgb(255, 99, 132)",
         backgroundColor: "rgba(255, 99, 132, 0.5)",
-        options: {
-          indexAxis: "y",
-          scales: {
-            x: {
-              beginAtZero: true,
-            },
-          },
-        },
+        fill: false,
+        lineTension: 0,
+        borderWidth: 2,
+        scaleSteps: 5,
+        scaleOverride: true,
+        scaleStartValue: 1,
+        scaleStepWidth: 1,
       },
       {
         label: "Order",
         data: chartorder,
         borderColor: "rgb(53, 162, 235)",
         backgroundColor: "rgba(53, 162, 235, 0.5)",
-        options: {
-          indexAxis: "y",
-          scales: {
-            x: {
-              beginAtZero: true,
-            },
-          },
-        },
+        fill: false,
+        lineTension: 0,
+        borderWidth: 2,
+        scaleSteps: 5,
+        scaleOverride: true,
+        scaleStartValue: 1,
+        scaleStepWidth: 1,
       },
     ],
+    options: {
+      legend: { display: false },
+      scales: {
+        yAxes: [{ ticks: { min: 1, max: 500000 } }],
+      },
+    },
   };
   return (
     <div className="flex ">
