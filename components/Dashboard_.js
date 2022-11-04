@@ -23,26 +23,26 @@ import { Myorder_store } from "../Api/User";
 import { Singleproduct } from "../Api/Product";
 // import Chart from "react-apexcharts";
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+// import {
+//   Chart as ChartJS,
+//   CategoryScale,
+//   LinearScale,
+//   PointElement,
+//   LineElement,
+//   Title,
+//   Tooltip,
+//   Legend,
+// } from "chart.js";
+// import { Line } from "react-chartjs-2";
+// ChartJS.register(
+//   CategoryScale,
+//   LinearScale,
+//   PointElement,
+//   LineElement,
+//   Title,
+//   Tooltip,
+//   Legend
+// );
 
 export const options = {
   responsive: true,
@@ -395,7 +395,7 @@ const Dashboard_ = () => {
           <div className="grid grid-cols-2 items-start gap-4">
             <div className="shadow-lg p-2 border h-full">
               <h1>Weekly Status</h1>
-              <Line options={options} data={data} />
+              {/* <Line options={options} data={data} /> */}
             </div>
             <div className=" h-fullshadow-lg p-2 border">
               <h1>Best Selling Products</h1>
