@@ -52,4 +52,16 @@ export const Navbar = axios.create({
   baseURL: `https://e-comme-api.herokuapp.com/navbar`,
 });
 
+export const About = axios.create({
+  baseURL: `https://e-comme-api.herokuapp.com/about`,
+});
+
+export const Coupon = axios.create({
+  baseURL: `https://e-comme-api.herokuapp.com/coupon`,
+});
+
+export const Address = axios.create({
+  baseURL: `https://e-comme-api.herokuapp.com/address`,
+});
+
 // https://e-comme-api.herokuapp.com

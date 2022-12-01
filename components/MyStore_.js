@@ -4,27 +4,18 @@ import dynamic from "next/dynamic";
 import { DragDropContext } from "react-beautiful-dnd";
 import Nav_ from "./Nav_";
 import { allTheme } from "../Api/Theme";
-
-// Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
 import { firebase } from "../database/firebase";
 import DeleteIcon from "@mui/icons-material/Delete";
-// Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
 import { toast, Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// import required modules
 import { Autoplay, Pagination, Navigation } from "swiper";
 import { Avatar } from "@mui/material";
-
 import { CreateCoverimg, allCoverimg, DeleteCoverimg } from "../Api/Coverimg";
-import {
-  createNavbar,
-  SingleNav,
-  updateNavbar,
-  deletenavbar,
-} from "../Api/Navbar";
+import { SingleNav } from "../Api/Navbar";
+import { CreateAbout, viewAbout, updateAbout } from "../Api/About";
 import {
   UpdateUserelements,
   ViewElements,
@@ -35,25 +26,32 @@ import { SingleStore, UpdateStore } from "../Api/Store";
 const Column = dynamic(() => import("../components/src/Column"), {
   ssr: false,
 });
-
 const reorderColumnList = (sourceCol, startIndex, endIndex) => {
   const newTaskIds = Array.from(sourceCol.taskIds);
   const [removed] = newTaskIds.splice(startIndex, 1);
   newTaskIds.splice(endIndex, 0, removed);
-
   const newColumn = {
     ...sourceCol,
     taskIds: newTaskIds,
   };
-
   return newColumn;
 };
 const MyStore_ = () => {
   const [isloading, setisloading] = useState(false);
   const [layoutloading, setlayoutloading] = useState(false);
-  const [state, setState] = useState(initialData);
+  const [state, setState] = useState(null);
   const [userid, setuserid] = useState(null);
   const [userelementslist, setuserelementslist] = useState([]);
+  const [aboutid, setaboutid] = useState(null);
+  const [instagram, setinstagram] = useState(null);
+  const [twitter, settwitter] = useState(null);
+  const [facebook, setfacebook] = useState(null);
+  const [about, setabout] = useState(null);
+  const [fromtime, setfromtime] = useState(null);
+  const [milestone, setmilestone] = useState(null);
+  const [totime, settotime] = useState(null);
+  const [vission, setvission] = useState(null);
+  const [whychoose, setwhychoose] = useState(null);
 
   const onDragEnd = async (result) => {
     const { destination, source } = result;
@@ -156,7 +154,6 @@ const MyStore_ = () => {
         element_list: orderlistresult.toString(),
       };
       await CreateUserelements(data);
-      // getalldata();
     }
   };
   //
@@ -166,6 +163,7 @@ const MyStore_ = () => {
     sethomecover(false);
     setisNavBarSection(false);
     setisAbout(false);
+    getelementdata();
   };
   const [homecover, sethomecover] = useState(true);
   const [isUpload, setisUpload] = useState(false);
@@ -175,7 +173,6 @@ const MyStore_ = () => {
     setisNavBarSection(false);
     setisAbout(false);
   };
-
   // Nav bar Sections
   const [isNavBarSection, setisNavBarSection] = useState(false);
   const NavBarHandler = () => {
@@ -184,15 +181,89 @@ const MyStore_ = () => {
     setisNavBarSection(true);
     setisAbout(false);
   };
-
   const [rows, setrows] = React.useState([]);
   const [coverimg, setcoverimg] = React.useState([]);
-
   useEffect(() => {
-    getalldata();
+    getelementdata();
     getThemedata();
     getuserdata();
   }, []);
+  const getelementdata = async () => {
+    var user_id = sessionStorage.getItem("user_id");
+    if (user_id !== null) {
+      var mystore = await SingleStore({ id: user_id });
+      if (mystore.data.length !== 0) {
+        setstoreid(mystore.data[0].id);
+        setstoretheme(mystore.data[0].theme);
+        if (mystore.data[0].theme === "theme1") {
+          const theme1 = {
+            tasks: {
+              1: { id: 1, content: "Latest Product" },
+              2: { id: 2, content: "Featured Products" },
+              3: { id: 3, content: "Journal" },
+              4: { id: 4, content: "Review" },
+            },
+            columns: {
+              "column-1": {
+                id: "column-1",
+                title: "Available Sections",
+                taskIds: [1, 2, 3, 4],
+              },
+              "column-2": {
+                id: "column-2",
+                title: "",
+                taskIds: [],
+              },
+            },
+            // Facilitate reordering of the columns
+            columnOrder: ["column-1", "column-2"],
+
+            list: [
+              { id: 1, content: "Latest" },
+              { id: 2, content: "Featured_products" },
+              { id: 3, content: "Journal" },
+              { id: 4, content: "Review" },
+            ],
+          };
+          setState(theme1);
+        } else {
+          const theme2 = {
+            tasks: {
+              1: { id: 1, content: "Latest Product" },
+              2: { id: 2, content: "Best Product" },
+              3: { id: 3, content: "Journal" },
+              4: { id: 4, content: "Review" },
+              5: { id: 5, content: "Explore Products" },
+            },
+            columns: {
+              "column-1": {
+                id: "column-1",
+                title: "Available Sections",
+                taskIds: [1, 2, 3, 4, 5],
+              },
+              "column-2": {
+                id: "column-2",
+                title: "",
+                taskIds: [],
+              },
+            },
+            // Facilitate reordering of the columns
+            columnOrder: ["column-1", "column-2"],
+
+            list: [
+              { id: 1, content: "Latest" },
+              { id: 2, content: "BestProduct" },
+              { id: 3, content: "Journal" },
+              { id: 4, content: "Review" },
+              { id: 5, content: "ExploreProduct" },
+            ],
+          };
+          setState(theme2);
+        }
+      }
+    }
+    getalldata();
+  };
   const getalldata = async () => {
     var store_id = sessionStorage.getItem("store_id");
     var userid = sessionStorage.getItem("user_id");
@@ -209,48 +280,103 @@ const MyStore_ = () => {
       setuserelementslist(myelement.data);
       var orderlist = myelement.data[0].element_list.split(",");
       var availablelist = [];
-      for (var i = 0; i < orderlist.length; i++) {
-        for (var j = 0; j < state.list.length; j++) {
-          if (state.list[j].content === orderlist[i]) {
-            availablelist.push(state.list[j].id);
+      if (state !== null) {
+        for (var i = 0; i < orderlist.length; i++) {
+          for (var j = 0; j < state.list.length; j++) {
+            if (state.list[j].content === orderlist[i]) {
+              availablelist.push(state.list[j].id);
+            }
           }
         }
+        if (storetheme === "theme1") {
+          var result = [1, 2, 3, 4].filter(
+            (val) => !availablelist.includes(val)
+          );
+          const initialData = {
+            tasks: {
+              1: { id: 1, content: "Latest Product" },
+              2: { id: 2, content: "Featured Products" },
+              3: { id: 3, content: "Journal" },
+              4: { id: 4, content: "Review" },
+            },
+            columns: {
+              "column-1": {
+                id: "column-1",
+                title: "",
+                taskIds: result,
+              },
+              "column-2": {
+                id: "column-2",
+                title: "",
+                taskIds: availablelist,
+              },
+            },
+            // Facilitate reordering of the columns
+            columnOrder: ["column-1", "column-2"],
+
+            list: [
+              { id: 1, content: "Latest" },
+              { id: 2, content: "Featured_products" },
+              { id: 3, content: "Journal" },
+              { id: 4, content: "Review" },
+            ],
+          };
+          setState(initialData);
+        } else {
+          var result = [1, 2, 3, 4, 5].filter(
+            (val) => !availablelist.includes(val)
+          );
+          const initialData2 = {
+            tasks: {
+              1: { id: 1, content: "Latest Product" },
+              2: { id: 2, content: "Best Product" },
+              3: { id: 3, content: "Journal" },
+              4: { id: 4, content: "Review" },
+              5: { id: 5, content: "Explore Products" },
+            },
+            columns: {
+              "column-1": {
+                id: "column-1",
+                title: "",
+                taskIds: result,
+              },
+              "column-2": {
+                id: "column-2",
+                title: "",
+                taskIds: availablelist,
+              },
+            },
+            // Facilitate reordering of the columns
+            columnOrder: ["column-1", "column-2"],
+
+            list: [
+              { id: 1, content: "Latest" },
+              { id: 2, content: "BestProduct" },
+              { id: 3, content: "Journal" },
+              { id: 4, content: "Review" },
+              { id: 5, content: "ExploreProduct" },
+            ],
+          };
+          setState(initialData2);
+        }
       }
-      var result = [1, 2, 3, 4].filter((val) => !availablelist.includes(val));
-
-      const initialData = {
-        tasks: {
-          1: { id: 1, content: "Latest Product" },
-          2: { id: 2, content: "Featured Products" },
-          3: { id: 3, content: "Journal" },
-          4: { id: 4, content: "Review" },
-        },
-        columns: {
-          "column-1": {
-            id: "column-1",
-            title: "",
-            taskIds: result,
-          },
-          "column-2": {
-            id: "column-2",
-            title: "",
-            taskIds: availablelist,
-          },
-        },
-        // Facilitate reordering of the columns
-        columnOrder: ["column-1", "column-2"],
-
-        list: [
-          { id: 1, content: "Latest" },
-          { id: 2, content: "Featured_products" },
-          { id: 3, content: "Journal" },
-          { id: 4, content: "Review" },
-        ],
-      };
-      setState(initialData);
     }
     var mynavlist = await SingleNav({ id: store_id });
     if (mynavlist.data.length !== 0) [setrows(mynavlist.data)];
+    var myabout = await viewAbout({ id: store_id });
+    if (myabout.length !== 0) {
+      setaboutid(myabout[0].id);
+      setinstagram(myabout[0].instagram);
+      settwitter(myabout[0].twitter);
+      setfacebook(myabout[0].facebook);
+
+      setabout(myabout[0].about);
+      setfromtime(myabout[0].fromtime);
+      setmilestone(myabout[0].milestone);
+      settotime(myabout[0].totime);
+      setvission(myabout[0].vission);
+      setwhychoose(myabout[0].whychoose);
+    }
   };
   const deltebtn = async (e) => {
     var deltebtn = await DeleteCoverimg({ id: e.target.id });
@@ -260,12 +386,79 @@ const MyStore_ = () => {
   };
 
   const [storeid, setstoreid] = useState("null");
+  const [storetheme, setstoretheme] = useState("null");
   const getuserdata = async () => {
     var user_id = sessionStorage.getItem("user_id");
     if (user_id !== null) {
       var mystore = await SingleStore({ id: user_id });
       if (mystore.data.length !== 0) {
         setstoreid(mystore.data[0].id);
+        setstoretheme(mystore.data[0].theme);
+        if (mystore.data[0].theme === "theme1") {
+          const theme1 = {
+            tasks: {
+              1: { id: 1, content: "Latest Product" },
+              2: { id: 2, content: "Featured Products" },
+              3: { id: 3, content: "Journal" },
+              4: { id: 4, content: "Review" },
+            },
+            columns: {
+              "column-1": {
+                id: "column-1",
+                title: "Available Sections",
+                taskIds: [1, 2, 3, 4],
+              },
+              "column-2": {
+                id: "column-2",
+                title: "",
+                taskIds: [],
+              },
+            },
+            // Facilitate reordering of the columns
+            columnOrder: ["column-1", "column-2"],
+
+            list: [
+              { id: 1, content: "Latest" },
+              { id: 2, content: "Featured_products" },
+              { id: 3, content: "Journal" },
+              { id: 4, content: "Review" },
+            ],
+          };
+          setState(theme1);
+        } else {
+          const theme2 = {
+            tasks: {
+              1: { id: 1, content: "Latest Product" },
+              2: { id: 2, content: "Best Product" },
+              3: { id: 3, content: "Journal" },
+              4: { id: 4, content: "Review" },
+              5: { id: 5, content: "Explore Products" },
+            },
+            columns: {
+              "column-1": {
+                id: "column-1",
+                title: "Available Sections",
+                taskIds: [1, 2, 3, 4, 5],
+              },
+              "column-2": {
+                id: "column-2",
+                title: "",
+                taskIds: [],
+              },
+            },
+            // Facilitate reordering of the columns
+            columnOrder: ["column-1", "column-2"],
+
+            list: [
+              { id: 1, content: "Latest" },
+              { id: 2, content: "BestProduct" },
+              { id: 3, content: "Journal" },
+              { id: 4, content: "Review" },
+              { id: 5, content: "ExploreProduct" },
+            ],
+          };
+          setState(theme2);
+        }
       }
     } else {
       setstoreid(null);
@@ -292,6 +485,7 @@ const MyStore_ = () => {
         autoClose: 2000,
         transition: Slide,
       });
+      getelementdata();
     }
   };
   // isAbout
@@ -338,12 +532,7 @@ const MyStore_ = () => {
           img.onload = async function () {
             let width = this.width;
             let height = this.height;
-            if (
-              width <= 7000 &&
-              width >= 5000 &&
-              height <= 2300 &&
-              height >= 1900
-            ) {
+            if (width >= 2500 && height >= 1000) {
               var data = {
                 image: imgurl1,
                 store: store_id,
@@ -353,11 +542,11 @@ const MyStore_ = () => {
                 getalldata();
               }
             } else {
-              toast.info("Image height : 2300px ", {
+              toast.info("Image height : 1100px ", {
                 autoClose: 2000,
                 transition: Slide,
               });
-              toast.info("Image width : 7000px ", {
+              toast.info("Image width : 2500px ", {
                 autoClose: 2000,
                 transition: Slide,
               });
@@ -374,7 +563,60 @@ const MyStore_ = () => {
       });
     }
   };
-
+  const saveabout = async () => {
+    var about = document.getElementById("about").value;
+    var milestone = document.getElementById("milestone").value;
+    var vission = document.getElementById("vission").value;
+    var whychoose = document.getElementById("whychoose").value;
+    var instagram = document.getElementById("instagram").value;
+    var facebook = document.getElementById("facebook").value;
+    var twitter = document.getElementById("twitter").value;
+    var fromtime = document.getElementById("fromtime").value;
+    var totime = document.getElementById("totime").value;
+    var data = {
+      about: about,
+      milestone: milestone,
+      vission: vission,
+      whychoose: whychoose,
+      instagram: instagram,
+      facebook: facebook,
+      twitter: twitter,
+      fromtime: fromtime,
+      totime: totime,
+      store: sessionStorage.getItem("store_id"),
+    };
+    var creteabout = await CreateAbout(data);
+    if (creteabout.message === "SUCCESS") {
+      getalldata();
+    }
+  };
+  const Upadteabout = async () => {
+    var about = document.getElementById("about").value;
+    var milestone = document.getElementById("milestone").value;
+    var vission = document.getElementById("vission").value;
+    var whychoose = document.getElementById("whychoose").value;
+    var instagram = document.getElementById("instagram").value;
+    var facebook = document.getElementById("facebook").value;
+    var twitter = document.getElementById("twitter").value;
+    var fromtime = document.getElementById("fromtime").value;
+    var totime = document.getElementById("totime").value;
+    var data = {
+      about: about,
+      milestone: milestone,
+      vission: vission,
+      whychoose: whychoose,
+      instagram: instagram,
+      facebook: facebook,
+      twitter: twitter,
+      fromtime: fromtime,
+      totime: totime,
+      id: aboutid,
+    };
+    var creteabout = await updateAbout(data);
+    if (creteabout === "Updated Successfully") {
+      getalldata();
+    }
+  };
   return (
     <div>
       <div className="flex ">
@@ -458,8 +700,8 @@ const MyStore_ = () => {
                       homepage
                     </p>
                     <p className=" Image_dimension">
-                      Image dimesion should not exceed (height:2300px)
-                      (width:7000px)
+                      Image dimesion should not exceed (height:2500px)
+                      (width:4000px)
                     </p>
 
                     <div className="home_cover_container">
@@ -633,6 +875,8 @@ const MyStore_ = () => {
                             className="border rounded"
                             cols={71}
                             rows={3}
+                            id="about"
+                            defaultValue={about}
                           />
                         </div>
                         <div className="flex flex-col my-1 items-start">
@@ -641,6 +885,8 @@ const MyStore_ = () => {
                             className="border rounded"
                             cols={71}
                             rows={3}
+                            id="milestone"
+                            defaultValue={milestone}
                           />
                         </div>
                         <div className="flex flex-col my-1 items-start">
@@ -649,6 +895,8 @@ const MyStore_ = () => {
                             className="border rounded"
                             cols={71}
                             rows={3}
+                            id="vission"
+                            defaultValue={vission}
                           />
                         </div>
                         <div className="flex flex-col my-1 items-start">
@@ -657,27 +905,76 @@ const MyStore_ = () => {
                             className="border rounded"
                             cols={71}
                             rows={3}
+                            id="whychoose"
+                            defaultValue={whychoose}
                           />
                         </div>
                         <div className="flex">
                           <div className=" mx-2 flex flex-col my-1 items-start">
                             <label>Our Instagram</label>
-                            <input className=" border rounded w-full p-2" />
+                            <input
+                              className=" border rounded w-full p-2"
+                              id="instagram"
+                              defaultValue={instagram}
+                            />
                           </div>
                           <div className=" mx-2 flex flex-col my-1 items-start">
                             <label>Our Facebook</label>
-                            <input className=" border rounded w-full p-2" />
+                            <input
+                              className=" border rounded w-full p-2"
+                              id="facebook"
+                              defaultValue={facebook}
+                            />
                           </div>
                           <div className=" mx-2 flex flex-col my-1 items-start">
                             <label>Our Twitter</label>
-                            <input className=" border rounded w-full p-2" />
+                            <input
+                              className=" border rounded w-full p-2"
+                              id="twitter"
+                              defaultValue={twitter}
+                            />
+                          </div>
+                        </div>
+                        <h6>
+                          <b>Working Hours</b>
+                        </h6>
+                        <div className="flex">
+                          <div className=" mx-2 flex flex-col my-1 items-start">
+                            <label>From Time</label>
+                            <input
+                              className=" border rounded w-full p-2"
+                              type="time"
+                              id="fromtime"
+                              defaultValue={fromtime}
+                            />
+                          </div>
+                          <div className=" mx-2 flex flex-col my-1 items-start">
+                            <label>To Time</label>
+                            <input
+                              className=" border rounded w-full p-2"
+                              type="time"
+                              id="totime"
+                              defaultValue={totime}
+                            />
                           </div>
                         </div>
                       </div>
                     </div>
-                    <button className="float-right mt-2 bg-black-1000 w-32 text-white-1000 py-2 rounded">
-                      Save
-                    </button>
+                    {aboutid !== null ? (
+                      <button
+                        className="float-right mt-2 bg-black-1000 w-32 text-white-1000 py-2 rounded"
+                        onClick={Upadteabout}
+                      >
+                        Update
+                      </button>
+                    ) : (
+                      <button
+                        className="float-right mt-2 bg-black-1000 w-32 text-white-1000 py-2 rounded"
+                        onClick={saveabout}
+                      >
+                        Save
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

@@ -21,28 +21,8 @@ import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import { Myorder_store } from "../Api/User";
 import { Singleproduct } from "../Api/Product";
-// import Chart from "react-apexcharts";
-
-// import {
-//   Chart as ChartJS,
-//   CategoryScale,
-//   LinearScale,
-//   PointElement,
-//   LineElement,
-//   Title,
-//   Tooltip,
-//   Legend,
-// } from "chart.js";
-// import { Line } from "react-chartjs-2";
-// ChartJS.register(
-//   CategoryScale,
-//   LinearScale,
-//   PointElement,
-//   LineElement,
-//   Title,
-//   Tooltip,
-//   Legend
-// );
+// import ApexCharts from "apexcharts";
+import Chart from "chart.js";
 
 export const options = {
   responsive: true,
@@ -263,45 +243,150 @@ const Dashboard_ = () => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-  const labels = chartdate;
-
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: "Earnings",
-        data: chartdata,
-        borderColor: "rgb(255, 99, 132)",
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
-        fill: false,
-        lineTension: 0,
-        borderWidth: 2,
-        scaleSteps: 5,
-        scaleOverride: true,
-        scaleStartValue: 1,
-        scaleStepWidth: 1,
-      },
-      {
-        label: "Order",
-        data: chartorder,
-        borderColor: "rgb(53, 162, 235)",
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
-        fill: false,
-        lineTension: 0,
-        borderWidth: 2,
-        scaleSteps: 5,
-        scaleOverride: true,
-        scaleStartValue: 1,
-        scaleStepWidth: 1,
-      },
-    ],
-    options: {
-      legend: { display: false },
-      scales: {
-        yAxes: [{ ticks: { min: 1, max: 500000 } }],
+  // charts
+  const [series, setseries] = useState([
+    {
+      name: "Desktops",
+      data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
+    },
+  ]);
+  const [options, setoptions] = useState({
+    chart: {
+      height: 350,
+      type: "line",
+      zoom: {
+        enabled: false,
       },
     },
-  };
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: "straight",
+    },
+    title: {
+      text: "Product Trends by Month",
+      align: "left",
+    },
+    grid: {
+      row: {
+        colors: ["#f3f3f3", "transparent"], // takes an array which will be repeated on columns
+        opacity: 0.5,
+      },
+    },
+    xaxis: {
+      categories: [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+      ],
+    },
+  });
+  // chart - 2
+  React.useEffect(() => {
+    var config = {
+      type: "line",
+      data: {
+        labels: [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+        ],
+        datasets: [
+          {
+            label: new Date().getFullYear(),
+            backgroundColor: "#3182ce",
+            borderColor: "#3182ce",
+            data: [65, 78, 66, 44, 56, 67, 75],
+            fill: false,
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        responsive: true,
+        title: {
+          display: false,
+          text: "Sales Charts",
+          fontColor: "white",
+        },
+        legend: {
+          labels: {
+            fontColor: "white",
+          },
+          align: "end",
+          position: "bottom",
+        },
+        tooltips: {
+          mode: "index",
+          intersect: false,
+        },
+        hover: {
+          mode: "nearest",
+          intersect: true,
+        },
+        scales: {
+          xAxes: [
+            {
+              ticks: {
+                fontColor: "rgba(255,255,255,.7)",
+              },
+              display: true,
+              scaleLabel: {
+                display: false,
+                labelString: "Month",
+                fontColor: "white",
+              },
+              gridLines: {
+                display: false,
+                borderDash: [2],
+                borderDashOffset: [2],
+                color: "rgba(33, 37, 41, 0.3)",
+                zeroLineColor: "rgba(0, 0, 0, 0)",
+                zeroLineBorderDash: [2],
+                zeroLineBorderDashOffset: [2],
+              },
+            },
+          ],
+          yAxes: [
+            {
+              ticks: {
+                fontColor: "rgba(255,255,255,.7)",
+              },
+              display: true,
+              scaleLabel: {
+                display: false,
+                labelString: "Value",
+                fontColor: "white",
+              },
+              gridLines: {
+                borderDash: [3],
+                borderDashOffset: [3],
+                drawBorder: false,
+                color: "rgba(255, 255, 255, 0.15)",
+                zeroLineColor: "rgba(33, 37, 41, 0)",
+                zeroLineBorderDash: [2],
+                zeroLineBorderDashOffset: [2],
+              },
+            },
+          ],
+        },
+      },
+    };
+    var ctx = document.getElementById("line-chart").getContext("2d");
+    window.myLine = new Chart(ctx, config);
+  }, []);
+
   return (
     <div className="flex ">
       <Sidebar_ />
@@ -392,10 +477,29 @@ const Dashboard_ = () => {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 items-start gap-4">
-            <div className="shadow-lg p-2 border h-full">
+          <div
+            style={{ height: "300px" }}
+            className="grid grid-cols-2 items-start gap-4"
+          >
+            <div className=" h-full">
               <h1>Weekly Status</h1>
-              {/* <Line options={options} data={data} /> */}
+              {/* <ApexCharts
+                options={options}
+                series={series}
+                type="line"
+                height={350}
+              /> */}
+              <div
+                style={{ backgroundColor: "#333" }}
+                className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-blueGray-700"
+              >
+                <div className="p-4 flex-auto">
+                  {/* Chart */}
+                  <div style={{ height: "300px" }} className="relative h-full">
+                    <canvas id="line-chart"></canvas>
+                  </div>
+                </div>
+              </div>
             </div>
             <div className=" h-fullshadow-lg p-2 border">
               <h1>Best Selling Products</h1>
@@ -411,7 +515,7 @@ const Dashboard_ = () => {
               /> */}
             </div>
           </div>
-          <div className="mt-2 mb-2">
+          {/* <div className="mt-2 mb-2">
             <h1>Recent Orders</h1>
             <Paper sx={{ width: "100%", overflow: "hidden" }}>
               <TableContainer sx={{ maxHeight: 640 }}>
@@ -483,7 +587,7 @@ const Dashboard_ = () => {
                 onRowsPerPageChange={handleChangeRowsPerPage}
               />
             </Paper>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

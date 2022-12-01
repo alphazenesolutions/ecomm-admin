@@ -16,12 +16,13 @@
     "@mui/material": "^5.10.6",
     "@mui/styled-engine-sc": "^5.10.6",
     "@reduxjs/toolkit": "^1.8.6",
+    "apexcharts": "^3.36.3",
     "array-move": "^4.0.0",
     "autoprefixer": "^10.4.12",
     "axios": "^0.27.2",
-    "chart.js": "^3.9.1",
+    "chart.js": "2.9.3",
     "dotenv": "^16.0.2",
-    "echarts": "^5.3.3",
+    "echarts": "^5.4.0",
     "echarts-for-react": "^3.0.2",
     "firebase": "^8.3.1",
     "formik": "^2.2.9",
@@ -44,7 +45,8 @@
     "react-toastify": "^9.0.8",
     "slugify": "^1.6.5",
     "swiper": "^8.4.4",
-    "tailwindcss": "^3.1.8"
+    "tailwindcss": "^3.1.8",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "eslint": "8.23.1",

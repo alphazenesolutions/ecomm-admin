@@ -2,11 +2,12 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Nav_ from "./Nav_";
 import Sidebar_ from "./Sidebar_";
-import Citylist from "./citylist.json";
 import { viewStore, UpdateStore } from "../Api/Store";
 import { firebase } from "../database/firebase";
 import { toast, Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Checkpassword } from "../Api/User";
+import { Viewuser,updatePassword } from '../Api/User'
 
 const Setting_ = () => {
   const [storename, setstorename] = useState(null);
@@ -15,6 +16,8 @@ const Setting_ = () => {
   const [storepincode, setstorepincode] = useState(null);
   const [storestate, setstorestate] = useState(null);
   const [storecity, setstorecity] = useState(null);
+  const [passwordchangeoption, setpasswordchangeoption] = useState(false);
+  const [updateid, setupdateid] = useState(null);
   useEffect(() => {
     getalldata();
   }, []);
@@ -42,24 +45,13 @@ const Setting_ = () => {
           setcitylist(zipcodeInfo[0].PostOffice);
         }, 2000);
       }
-      // setTimeout(async () => {
-      //   var singlestate = await Citylist.states.filter((data) => {
-      //     return data.state === Single_Store.data[0].state;
-      //   });
-      //   setcitylist(singlestate[0].districts);
-      // }, 2000);
     }
-    // setstatelist(Citylist.states);
+    var singleuser = await Viewuser({ user_id: sessionStorage.getItem("user_id") });
+    if (singleuser.data.length !== 0) {
+      setupdateid(singleuser.data[0].id)
+    }
   };
-  const [statelist, setstatelist] = useState([]);
   const [citylist, setcitylist] = useState([]);
-  const handleChangestate = async (e) => {
-    var singlestate = await statelist.filter((data) => {
-      return data.state === e.target.value;
-    });
-    setcitylist(singlestate[0].districts);
-    setstorestate(e.target.value);
-  };
   const handleChangecity = (e) => {
     setstorecity(e.target.value);
   };
@@ -114,134 +106,225 @@ const Setting_ = () => {
   const setpinvalue = async (e) => {
     setstorepincode(e.target.value);
   };
+  const passwordchange = async () => {
+    setpasswordchangeoption(!passwordchangeoption);
+  };
+  const changepassword = async () => {
+    var email = document.getElementById("email").value;
+    var oldpassword = document.getElementById("oldpassword").value;
+    var newpassword = document.getElementById("newpassword").value;
+    if (email.length == 0) {
+      toast.error("Email is Required..", {
+        autoClose: 2000,
+        transition: Slide,
+      });
+    } else if (oldpassword.length == 0) {
+      toast.error("Old Password is Required..", {
+        autoClose: 2000,
+        transition: Slide,
+      });
+    } else if (newpassword.length == 0) {
+      toast.error("New Password is Required..", {
+        autoClose: 2000,
+        transition: Slide,
+      });
+    } else {
+      var data = {
+        email: email,
+        password: oldpassword,
+      };
+      var checkpassword = await Checkpassword(data);
+      if (checkpassword == true) {
+        var datanew = {
+          password: newpassword,
+          id: updateid,
+        };
+        var updatedata = await updatePassword(datanew)
+        if (updatedata.message === "Updated Successfully") {
+          toast.success("User Updated Successfully...", {
+            autoClose: 2000,
+            transition: Slide,
+          });
+        }
+      }
+    }
+  };
   return (
     <div className="flex ">
       <Sidebar_ />
       <div className="w-full">
         <Nav_ />
         <div className="w-full p-8 Dashboard">
-          <h1>Store Setting</h1>
-          <div>
-            <div className="Store_setting">
-              <div className="w-9/12 m-auto	items-center">
-                <div>
-                  <div className="shadow-lg p-8">
-                    <h1 className="font-bold	mb-4">
-                      Get a head start on your store setup.
-                    </h1>
-                    {storelogo !== null ? (
-                      <img src={storelogo} width="140px" height="60" />
-                    ) : null}
-                    <input
-                      className="border w-full mb-2 p-3 rounded"
-                      placeholder="What’s your store name?"
-                      name="storename"
-                      type="file"
-                      onChange={geturl}
-                    />
-                    <div>
+          <div className="flex">
+            {passwordchangeoption === false ? (
+              <button
+                className="border-solid border-2 p-3 mr-4 mb-4 bg-black-500 text-white-1000 hover:bg-white-400"
+                onClick={passwordchange}
+              >
+                Store Setting
+              </button>
+            ) : (
+              <button
+                className="border-solid border-2 p-3 mr-4 mb-4 hover:bg-white-400"
+                onClick={passwordchange}
+              >
+                Store Setting
+              </button>
+            )}
+            {passwordchangeoption === false ? (
+              <button
+                className="border-solid border-2 p-3 mr-4 mb-4 hover:bg-white-400"
+                onClick={passwordchange}
+              >
+                Password Setting
+              </button>
+            ) : (
+              <button
+                className="border-solid border-2 p-3 mr-4 mb-4 bg-black-500 text-white-1000 hover:bg-white-400"
+                onClick={passwordchange}
+              >
+                Password Setting
+              </button>
+            )}
+          </div>
+          {passwordchangeoption === false ? (
+            <div>
+              <div className="Store_setting">
+                <div className="w-9/12 m-auto	items-center">
+                  <div>
+                    <div className="shadow-lg p-8">
+                      <h1 className="font-bold	mb-4">
+                        Get a head start on your store setup.
+                      </h1>
+                      {storelogo !== null ? (
+                        <img src={storelogo} width="140px" height="60" />
+                      ) : null}
                       <input
                         className="border w-full mb-2 p-3 rounded"
                         placeholder="What’s your store name?"
                         name="storename"
-                        type="text"
-                        defaultValue={storename}
-                        onChange={setstorenamevalue}
+                        type="file"
+                        onChange={geturl}
                       />
+                      <div>
+                        <input
+                          className="border w-full mb-2 p-3 rounded"
+                          placeholder="What’s your store name?"
+                          name="storename"
+                          type="text"
+                          defaultValue={storename}
+                          onChange={setstorenamevalue}
+                        />
 
-                      <input
-                        className="border w-full mb-2 p-3 rounded"
-                        placeholder="Domain"
-                        name="storename"
-                        type="text"
-                        defaultValue={storedomain}
-                        onChange={setdomainvalue}
-                      />
-                      <input
-                        className="border w-full mb-2 p-3 rounded"
-                        placeholder="Pin code"
-                        name="pincode"
-                        type="number"
-                        defaultValue={storepincode}
-                        onChange={setpinvalue}
-                      />
-                      {/* {formik.errors.pincode ? (
-                        <div className="text-red-500">
-                          {formik.errors.pincode}
-                        </div>
-                      ) : null} */}
-                      <input
-                        className="border w-full mb-2 p-3 rounded"
-                        placeholder="Country"
-                        name="country"
-                        value="INDIA"
-                        type="text"
-                        disabled
-                      />
-                      <input
-                        className="border w-full mb-2 p-3 rounded"
-                        placeholder="state"
-                        name="state"
-                        defaultValue={storestate}
-                        type="text"
-                        disabled
-                      />
-                      {/* {formik.errors.country ? (
-                        <div className="text-red-500">
-                          {formik.errors.country}
-                        </div>
-                      ) : null} */}
-                      {/* <select
-                        className="border w-full mb-2 p-3 rounded"
-                        onChange={handleChangestate}
-                      >
-                        <option>Select State</option>
-                        {statelist.length !== 0
-                          ? statelist.map((data, index) =>
-                              storestate === data.state ? (
-                                <option value={storestate} selected key={index}>
-                                  {storestate}
-                                </option>
-                              ) : (
-                                <option value={data.state} key={index}>
-                                  {data.state}
-                                </option>
+                        <input
+                          className="border w-full mb-2 p-3 rounded"
+                          placeholder="Domain"
+                          name="storename"
+                          type="text"
+                          defaultValue={storedomain}
+                          onChange={setdomainvalue}
+                        />
+                        <input
+                          className="border w-full mb-2 p-3 rounded"
+                          placeholder="Pin code"
+                          name="pincode"
+                          type="number"
+                          defaultValue={storepincode}
+                          onChange={setpinvalue}
+                        />
+
+                        <input
+                          className="border w-full mb-2 p-3 rounded"
+                          placeholder="Country"
+                          name="country"
+                          value="INDIA"
+                          type="text"
+                          disabled
+                        />
+                        <input
+                          className="border w-full mb-2 p-3 rounded"
+                          placeholder="state"
+                          name="state"
+                          defaultValue={storestate}
+                          type="text"
+                          disabled
+                        />
+                        <select
+                          className="border w-full mb-2 p-3 rounded"
+                          onChange={handleChangecity}
+                        >
+                          <option>Select City</option>
+                          {citylist.length !== 0
+                            ? citylist.map((data, index) =>
+                                storecity === data.Name ? (
+                                  <option
+                                    value={storecity}
+                                    selected
+                                    key={index}
+                                  >
+                                    {storecity}
+                                  </option>
+                                ) : (
+                                  <option value={data.Name} key={index}>
+                                    {data.Name}
+                                  </option>
+                                )
                               )
-                            )
-                          : null}
-                      </select> */}
-                      <select
-                        className="border w-full mb-2 p-3 rounded"
-                        onChange={handleChangecity}
-                      >
-                        <option>Select City</option>
-                        {citylist.length !== 0
-                          ? citylist.map((data, index) =>
-                              storecity === data.Name ? (
-                                <option value={storecity} selected key={index}>
-                                  {storecity}
-                                </option>
-                              ) : (
-                                <option value={data.Name} key={index}>
-                                  {data.Name}
-                                </option>
-                              )
-                            )
-                          : null}
-                      </select>
-                      <button
-                        className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4"
-                        onClick={updatebtn}
-                      >
-                        Update
-                      </button>
+                            : null}
+                        </select>
+                        <button
+                          className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4"
+                          onClick={updatebtn}
+                        >
+                          Update
+                        </button>
+                      </div>
                     </div>
+                    <div className="shadow-lg"></div>
                   </div>
-                  <div className="shadow-lg"></div>
                 </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <div className="Store_setting">
+                <div className="w-9/12 m-auto	items-center">
+                  <div>
+                    <div className="shadow-lg p-8">
+                      <h1 className="font-bold	mb-4">Change Password</h1>
+                      <div>
+                        <input
+                          className="border w-full mb-2 p-3 rounded"
+                          placeholder="Enter Your Email"
+                          id="email"
+                          type="text"
+                        />
+                        <input
+                          className="border w-full mb-2 p-3 rounded"
+                          placeholder="Old Password"
+                          id="oldpassword"
+                          type="password"
+                        />
+                        <input
+                          className="border w-full mb-2 p-3 rounded"
+                          placeholder="New Password"
+                          id="newpassword"
+                          type="password"
+                        />
+                        <button
+                          className="rounded bg-black-500	text-white-1000 w-full p-3 mt-4"
+                          onClick={changepassword}
+                        >
+                          Update
+                        </button>
+                      </div>
+                    </div>
+                    <div className="shadow-lg"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <ToastContainer />

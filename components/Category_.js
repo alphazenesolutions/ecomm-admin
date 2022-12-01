@@ -9,6 +9,7 @@ import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
 import EditIcon from "@mui/icons-material/Edit";
+
 import {
   Allcategory,
   Creatcategory,
@@ -419,13 +420,13 @@ const Category_ = () => {
                                     <Avatar
                                       id={row.category.id}
                                       className=" text-black-1000 p-2 category_delete ml-2"
+                                      onClick={deltebtn}
                                     >
-                                      <p
+                                      <DeleteIcon
+                                        className="text-sm"
                                         id={row.category.id}
                                         onClick={deltebtn}
-                                      >
-                                        x
-                                      </p>
+                                      />
                                     </Avatar>
                                   </div>
                                 </TableCell>

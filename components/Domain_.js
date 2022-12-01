@@ -557,7 +557,7 @@ const Signup_ = () => {
                             <input
                               className="border w-full mb-2 p-3 rounded"
                               placeholder="Password"
-                              type="text"
+                              type="password"
                               name="password"
                               onChange={formik_1.handleChange}
                               defaultValue={formik_1.values.password}

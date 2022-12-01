@@ -13,7 +13,15 @@ import { toast, Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Avatar } from "@mui/material";
 import { firebase } from "../database/firebase";
-import { CreateProduct, Allproduct, Updateproduct } from "../Api/Product";
+import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
+import {
+  CreateProduct,
+  Allproduct,
+  Updateproduct,
+  Deleteproduct,
+} from "../Api/Product";
 import { Allcategory } from "../Api/Category";
 import {
   CreateVariation,
@@ -29,6 +37,7 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import moment from "moment";
 
 const Products_ = () => {
   const [isPorduct, setisPorduct] = useState(true);
@@ -46,7 +55,7 @@ const Products_ = () => {
   useEffect(() => {
     getalldata();
   }, []);
-
+  const drawerWidth = 450;
   const getalldata = async () => {
     var store_id = sessionStorage.getItem("store_id");
 
@@ -131,7 +140,7 @@ const Products_ = () => {
   const validate = (values) => {
     var text = (Math.random() + 1).toString(36).substring(7);
     const errors = {};
-    var slugvalue = slugify(values.name, "_").toLowerCase().concat("_",text);
+    var slugvalue = slugify(values.name, "_").toLowerCase().concat("_", text);
     document.getElementById("slugdata").value = slugvalue.toLowerCase();
     return errors;
   };
@@ -182,7 +191,9 @@ const Products_ = () => {
           var store_id = sessionStorage.getItem("store_id");
           values["original"] = productimg;
           values["store"] = store_id;
-          values["slug"] = slugify(values.name, "_").toLowerCase().concat("_",text);
+          values["slug"] = slugify(values.name, "_")
+            .toLowerCase()
+            .concat("_", text);
           var creteproduct = await CreateProduct(values);
           if (creteproduct.message === "SUCCESS") {
             setisproduct_loading(false);
@@ -230,23 +241,18 @@ const Products_ = () => {
       img.onload = async function () {
         let width = this.width;
         let height = this.height;
-        if (
-          width <= 4500 &&
-          width >= 4000 &&
-          height <= 6500 &&
-          height >= 6000
-        ) {
+        if (width <= 1000 && width >= 400 && height <= 1100 && height >= 400) {
           setproductimg(imgurl1);
           toast.success("Image Uploaded...", {
             autoClose: 5000,
             transition: Slide,
           });
         } else {
-          toast.error("Image height should be within 6500 px..", {
+          toast.error("Image height should be within 1100 px..", {
             autoClose: 2000,
             transition: Slide,
           });
-          toast.error("Image Width should be within 4500 px..", {
+          toast.error("Image Width should be within 900 px..", {
             autoClose: 2000,
             transition: Slide,
           });
@@ -336,18 +342,18 @@ const Products_ = () => {
             let width = this.width;
             let height = this.height;
             if (
-              width <= 4500 &&
-              width >= 4000 &&
-              height <= 6500 &&
-              height >= 6000
+              width <= 1000 &&
+              width >= 400 &&
+              height <= 1100 &&
+              height >= 400
             ) {
               galleryimgarray.push(imgurl1);
             } else {
-              toast.error("Image height should be within 6500 px..", {
+              toast.error("Image height should be within 1100 px..", {
                 autoClose: 2000,
                 transition: Slide,
               });
-              toast.error("Image Width should be within 4500 px..", {
+              toast.error("Image Width should be within 900 px..", {
                 autoClose: 2000,
                 transition: Slide,
               });
@@ -524,10 +530,10 @@ const Products_ = () => {
             let height = this.height;
 
             if (
-              width <= 6500 &&
-              width >= 6000 &&
-              height <= 2300 &&
-              height >= 1900
+              width <= 1000 &&
+              width >= 400 &&
+              height <= 1100 &&
+              height >= 400
             ) {
               var data = {
                 original: imgurl1,
@@ -539,11 +545,11 @@ const Products_ = () => {
                 seteditgallerydata(mygallery);
               }, 2000);
             } else {
-              toast.error("Image height should be within 6500 px..", {
+              toast.error("Image height should be within 1100 px..", {
                 autoClose: 2000,
                 transition: Slide,
               });
-              toast.error("Image Width should be within 2300 px..", {
+              toast.error("Image Width should be within 900 px..", {
                 autoClose: 2000,
                 transition: Slide,
               });
@@ -680,6 +686,28 @@ const Products_ = () => {
       data.push(countnew[i]);
     }
     setrow_2(data);
+  };
+  const deltebtn = async (e) => {
+    var deleteproduct = await Deleteproduct({ id: e.target.id });
+    if (deleteproduct.message === "Deleted Successfully") {
+      getalldata();
+    }
+  };
+
+  const [open, setOpen] = React.useState(false);
+  const [singleorder, setsingleorder] = React.useState([]);
+
+  const handleDrawerOpen = async (e) => {
+    setsingleorder([]);
+    var checkorder = await rows.filter((data) => {
+      return data.id == e.target.id;
+    });
+    setsingleorder(checkorder);
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
   };
   return (
     <div className="flex ">
@@ -1093,7 +1121,10 @@ const Products_ = () => {
                                 tabIndex={-1}
                                 key={row.code}
                               >
-                                <TableCell>
+                                <TableCell
+                                  onClick={handleDrawerOpen}
+                                  id={row.id}
+                                >
                                   {" "}
                                   <div className="flex items-center">
                                     <Avatar src={row.original} />
@@ -1101,11 +1132,34 @@ const Products_ = () => {
                                     <p className="ml-2">{row.name}</p>
                                   </div>
                                 </TableCell>
-                                <TableCell>{row.description}</TableCell>
-                                <TableCell>{row.slug}</TableCell>
-                                <TableCell>{row.price}</TableCell>
-                                <TableCell>{row.sale_price}</TableCell>
-                                <TableCell>
+                                <TableCell
+                                  onClick={handleDrawerOpen}
+                                  id={row.id}
+                                >
+                                  {row.description}
+                                </TableCell>
+                                <TableCell
+                                  onClick={handleDrawerOpen}
+                                  id={row.id}
+                                >
+                                  {row.slug}
+                                </TableCell>
+                                <TableCell
+                                  onClick={handleDrawerOpen}
+                                  id={row.id}
+                                >
+                                  {row.price}
+                                </TableCell>
+                                <TableCell
+                                  onClick={handleDrawerOpen}
+                                  id={row.id}
+                                >
+                                  {row.sale_price}
+                                </TableCell>
+                                <TableCell
+                                  onClick={handleDrawerOpen}
+                                  id={row.id}
+                                >
                                   {row.featured !== "true" ? (
                                     <span id={row.id} onClick={AddFeature}>
                                       <FavoriteBorderIcon
@@ -1123,7 +1177,10 @@ const Products_ = () => {
                                     </span>
                                   )}
                                 </TableCell>
-                                <TableCell>
+                                <TableCell
+                                  style={{ display: "flex" }}
+                                 
+                                >
                                   <button
                                     id={row.id}
                                     onClick={editHandler}
@@ -1133,6 +1190,18 @@ const Products_ = () => {
                                       <EditIcon
                                         id={row.id}
                                         onClick={editHandler}
+                                      />
+                                    </p>
+                                  </button>
+                                  <button
+                                    id={row.id}
+                                    onClick={deltebtn}
+                                    className=" px-5 py-2"
+                                  >
+                                    <p id={row.id} onClick={deltebtn}>
+                                      <DeleteIcon
+                                        id={row.id}
+                                        onClick={deltebtn}
                                       />
                                     </p>
                                   </button>
@@ -1410,7 +1479,71 @@ const Products_ = () => {
           </div>
         </div>
       </div>
+      <Drawer
+        sx={{
+          width: 0,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+          },
+        }}
+        variant="persistent"
+        anchor="right"
+        open={open}
+        className="Drawer__"
+      >
+        <div>
+          <IconButton onClick={handleDrawerClose}>
+            <CloseIcon />
+          </IconButton>
+        </div>
+        {singleorder.length !== 0 ? (
+          <div className="Drawer_">
+            <div className="Drawer_Head">
+              <h1>PRODUCT</h1>
+              <div className="drawer_product">
+                <img src={singleorder[0].original} />
+                <h1>{singleorder[0].name}</h1>
+                <p>{singleorder[0].description}</p>
+              </div>
+            </div>
+            <hr />
 
+            <hr />
+            <div className="Drawer_footer">
+              <h1>DETAILS</h1>
+              <div className="Drawer_footer_table">
+                <div className="Drawer_footer_detail">
+                  <h1>Category</h1>
+                  <h1>{singleorder[0].category}</h1>
+                </div>
+                <div className="Drawer_footer_detail">
+                  <h1>Stock</h1>
+                  <h1>{singleorder[0].stock}</h1>
+                </div>
+                <div className="Drawer_footer_detail">
+                  <h1>Price</h1>
+                  <h1>{singleorder[0].price}</h1>
+                </div>
+                <div className="Drawer_footer_detail">
+                  <h1>Sale Price</h1>
+                  <h1>{singleorder[0].sale_price}</h1>
+                </div>
+                <div className="Drawer_footer_detail">
+                  <h1>Slug</h1>
+                  <h1>{singleorder[0].slug}</h1>
+                </div>
+                <div className="Drawer_footer_detail">
+                  <h1>Created On</h1>
+                  <h1>{moment(singleorder[0].createdAt).format("MMM Do YY")}</h1>
+                </div>
+              
+                
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </Drawer>
       <ToastContainer />
     </div>
   );

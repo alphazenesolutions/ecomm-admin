@@ -43,3 +43,16 @@ export const Updateproduct = async (data) => {
     });
   return Updateproduct;
 };
+
+export const Deleteproduct = async (data) => {
+  var Deleteproduct = await Product.post(`/destroy`,data)
+    .then((res) => {
+      return res.data;
+    })
+    .catch((err) => {
+      return err.response;
+    });
+  return Deleteproduct;
+};
+
+

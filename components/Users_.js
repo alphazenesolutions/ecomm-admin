@@ -13,12 +13,11 @@ import { Allusers } from "../Api/User";
 const Users_ = () => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [rows,setrows]=useState([])
+  const [rows, setrows] = useState([]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
-
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
@@ -27,8 +26,18 @@ const Users_ = () => {
     getalldata();
   }, []);
   const getalldata = async () => {
+    var store_id = sessionStorage.getItem("store_id");
     var alluser = await Allusers();
-    setrows(alluser.data);
+    if (alluser.data.length !== 0) {
+      var storeuser = await alluser.data.filter((data) => {
+        return data.store == store_id && data.type == "customer";
+      });
+      setrows(storeuser);
+    }
+  };
+  const vieworder = (e) => {
+    sessionStorage.setItem("viewuser", e.target.id);
+    window.location.replace("/Userorder");
   };
   return (
     <div className="flex ">
@@ -42,17 +51,23 @@ const Users_ = () => {
             <TableContainer sx={{ maxHeight: 640 }}>
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
-                <TableRow>
-                      <TableCell className="text-md text-black-800 font-bold">
-                        User Name
-                      </TableCell>
-                      <TableCell className="text-md text-black-800 font-bold">
-                        Email
-                      </TableCell>
-                      <TableCell className="text-md text-black-800 font-bold">
-                        Phone
-                      </TableCell>
-                    </TableRow>
+                  <TableRow>
+                    <TableCell className="text-md text-black-800 font-bold">
+                      S.No
+                    </TableCell>
+                    <TableCell className="text-md text-black-800 font-bold">
+                      User Name
+                    </TableCell>
+                    <TableCell className="text-md text-black-800 font-bold">
+                      Email
+                    </TableCell>
+                    <TableCell className="text-md text-black-800 font-bold">
+                      Phone
+                    </TableCell>
+                    <TableCell className="text-md text-black-800 font-bold">
+                      Phone
+                    </TableCell>
+                  </TableRow>
                 </TableHead>
                 <TableBody>
                   {rows
@@ -63,11 +78,21 @@ const Users_ = () => {
                           hover
                           role="checkbox"
                           tabIndex={-1}
-                          key={row.code}
+                          key={index}
                         >
+                          <TableCell>{index + 1}</TableCell>
                           <TableCell>{row.name}</TableCell>
                           <TableCell>{row.email}</TableCell>
                           <TableCell>{row.phone}</TableCell>
+                          <TableCell>
+                            <button
+                              className="rounded bg-black-500 text-white-1000 p-3 m-2"
+                              id={row.user_id}
+                              onClick={vieworder}
+                            >
+                              View Order
+                            </button>
+                          </TableCell>
                         </TableRow>
                       );
                     })}

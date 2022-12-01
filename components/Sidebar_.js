@@ -33,7 +33,16 @@ const Sidebar_ = () => {
     window.location.replace("/");
   };
   const nav_sales = () => {
-    window.location.replace("/Mysale");
+    window.location.replace("/Allorder");
+  };
+  const nav_Pendingorder = () => {
+    window.location.replace("/Pendingorder");
+  };
+  const nav_Processing = () => {
+    window.location.replace("/Processorder");
+  };
+  const nav_Completeorder = () => {
+    window.location.replace("/Completeorder");
   };
   const Nav_Featured = () => {
     window.location.replace("/Featured");
@@ -46,6 +55,18 @@ const Sidebar_ = () => {
   };
   const nav_menu = () => {
     window.location.replace("/Menu");
+  };
+  const nav_users = () => {
+    window.location.replace("/users");
+  };
+  const nav_cancelorder = () => {
+    window.location.replace("/Cancelorder");
+  };
+  const Nav_coupons = () => {
+    window.location.replace("/Coupon");
+  };
+  const ComingSoon = () => {
+    window.location.replace("/ComingSoon");
   };
   const logoutbtn = async () => {
     localStorage.clear();
@@ -116,15 +137,48 @@ const Sidebar_ = () => {
             nodeId="2"
             label="Analytics & Predicition"
           >
-            <TreeItem className="sidebarMenu" nodeId="3" label="Analytics" />
-            <TreeItem nodeId="4" label="Predicition"></TreeItem>
+            <TreeItem
+              onClick={ComingSoon}
+              className="sidebarMenu"
+              nodeId="3"
+              label="Analytics"
+            />
+            <TreeItem
+              onClick={ComingSoon}
+              nodeId="4"
+              label="Predicition"
+            ></TreeItem>
           </TreeItem>
           <TreeItem className="sidebarMenu" nodeId="5" label="Order Management">
             <TreeItem
               className="mt-6"
               nodeId="6"
               onClick={nav_sales}
-              label="Orders"
+              label="All Orders"
+            />
+            <TreeItem
+              className="mt-6"
+              nodeId="61"
+              onClick={nav_Pendingorder}
+              label="Pending Orders"
+            />
+            <TreeItem
+              className="mt-6"
+              nodeId="62"
+              onClick={nav_Processing}
+              label="Processing orders"
+            />
+            <TreeItem
+              className="mt-6"
+              nodeId="63"
+              onClick={nav_Completeorder}
+              label="Completed orders"
+            />
+            <TreeItem
+              className="mt-6"
+              nodeId="64"
+              onClick={nav_cancelorder}
+              label="Cancel orders"
             />
           </TreeItem>
           <TreeItem
@@ -132,13 +186,19 @@ const Sidebar_ = () => {
             nodeId="7"
             label="Customer Management"
           >
-            <TreeItem className="mt-6" nodeId="8" label="Customer" />
+            <TreeItem
+              className="mt-6"
+              nodeId="8"
+              label="Customer"
+              onClick={nav_users}
+            />
           </TreeItem>
           <TreeItem className="sidebarMenu" nodeId="9" label="Store Settings">
             <TreeItem
               className="sidebarMenu"
               nodeId="10"
               label="Domain Settings"
+              onClick={ComingSoon}
             />
             <TreeItem
               className="sidebarMenu"
@@ -149,19 +209,32 @@ const Sidebar_ = () => {
             <TreeItem
               className="sidebarMenu"
               nodeId="12"
+              onClick={ComingSoon}
               label="Store Information"
             />
             <TreeItem
               className="sidebarMenu"
               nodeId="13"
+              onClick={ComingSoon}
               label="Contact Information"
             />
-            <TreeItem nodeId="14" label="Payment Information" />
+            <TreeItem
+              onClick={ComingSoon}
+              nodeId="14"
+              label="Payment Information"
+            />
           </TreeItem>
           <TreeItem
             className="sidebarMenu"
             nodeId="105"
+            onClick={ComingSoon}
             label="Extensions"
+          ></TreeItem>
+          <TreeItem
+            className="sidebarMenu"
+            nodeId="1070"
+            onClick={Nav_coupons}
+            label="Coupons"
           ></TreeItem>
           <TreeItem
             className="sidebarMenu"
@@ -174,11 +247,16 @@ const Sidebar_ = () => {
             nodeId="15"
             label="E-mail Notifications"
           >
-            <TreeItem className="mt-6" nodeId="16" label="Email " />
+            <TreeItem
+              onClick={ComingSoon}
+              className="mt-6"
+              nodeId="16"
+              label="Email "
+            />
           </TreeItem>
           <TreeItem
             className="sidebarMenu"
-            nodeId="107"
+            nodeId="1071"
             onClick={logoutbtn}
             label="Logout"
           ></TreeItem>

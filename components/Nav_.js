@@ -44,7 +44,7 @@ const Nav_ = () => {
             </p>
           </div>
         ) : (
-          <div className="flex items-center">
+          <div className="flex items-center" style={{ cursor: "pointer" }}>
             <StoreIcon />
             <p className="ml-3 mr-4" onClick={viewstore}>
               {storename}
